@@ -2,6 +2,8 @@
 #define APPLICATION_H_
 
 #include "Display.h"
+#include "AnimationManager.h"
+#include "UiManager.h"
 
 class Application {
 public:
@@ -13,6 +15,8 @@ public:
 private:
     bool quit_requested_;
     Display display_;
+    AnimationManager animator_;
+    UiManager ui_;
 };
 
 #endif // APPLICATION_H_

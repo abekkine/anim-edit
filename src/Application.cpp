@@ -15,6 +15,8 @@ Application::~Application()
 void Application::Init()
 {
     display_.Init();
+    ui_.Init();
+    animator_.Init();
 }
 
 void Application::Exit()
@@ -27,15 +29,14 @@ void Application::Run()
     // TODO : move following block into display thread.
     while (not display_.QuitRequested()) {
         display_.PreRender();
-        display_.WorldMode();
 
         // Sample animation rendering
-        // TODO
+        display_.WorldMode();
+        animator_.Render();
 
         // Sample ui rendering
-        // TODO
-
-        // End
+        display_.UiMode();
+        ui_.Render();
 
         display_.PostRender();
 

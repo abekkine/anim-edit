@@ -26,14 +26,14 @@ void EventService::Stop()
     }
 }
 
-void EventService::Subscribe(EventInterface* event, std::function<void(EventInterface*)> handler)
+void EventService::Subscribe(std::string topic, std::function<void(EventInterface*)> handler)
 {
-    handlers_[event->id()].push_back(handler);    
+    handlers_[topic].push_back(handler);    
 }
 
-void EventService::Publish(EventInterface* event)
+void EventService::Publish(std::string topic, EventInterface* event)
 {
-    auto topic_iter = handlers_.find(event->id());
+    auto topic_iter = handlers_.find(topic);
     if (topic_iter != handlers_.end()) {
         for (auto handler : topic_iter->second) {
             io_service_.post(std::bind(handler, event));

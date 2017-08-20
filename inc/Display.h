@@ -5,6 +5,8 @@
 
 #include <string>
 
+#include "EventInterface.h"
+
 class Display {
 public:
     Display();
@@ -25,6 +27,8 @@ private:
     void InitGraphics();
     void ConfigureGraphics();
     void ForceQuit();
+private:
+    void quitEventHandler(EventInterface* event);
 private:
     static void errorCallback(int error, const char* description);
     static void resizeCallback(GLFWwindow* win, int width, int height);

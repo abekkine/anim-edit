@@ -3,6 +3,8 @@
 #include <iostream>
 
 #include "InputManager.h"
+#include "EventService.h"
+#include "QuitEvent.h"
 
 Display::Display()
 : application_name_("example")
@@ -54,6 +56,8 @@ void Display::Init()
 {
     InitGraphics();
     ConfigureGraphics();
+
+    EVENTS.Subscribe("quit", std::bind(&Display::quitEventHandler, this, std::placeholders::_1));
 }
 
 void Display::Exit()
@@ -162,8 +166,12 @@ void Display::UiMode()
     glOrtho(0, screen_width_, 0, screen_height_, -1.0, 1.0);
 }
 
-// TODO : Add handler for quit request
-// quitRequestHandler() { ForceQuit(); }
+void Display::quitEventHandler(EventInterface* event) {
+    QuitEvent* e = dynamic_cast<QuitEvent*>(event);
+    if (e != 0) {
+        ForceQuit();
+    }
+}
 
 void Display::errorCallback(int error, const char* description)
 {

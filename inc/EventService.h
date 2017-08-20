@@ -3,6 +3,7 @@
 
 #include <boost/asio.hpp>
 
+#include <string>
 #include <thread>
 #include <unordered_map>
 #include <functional>
@@ -18,8 +19,8 @@ public:
 public:
     void Start();
     void Stop();
-    void Subscribe(EventInterface* event, std::function<void(EventInterface*)> handler);
-    void Publish(EventInterface* event);
+    void Subscribe(std::string topic, std::function<void(EventInterface*)> handler);
+    void Publish(std::string topic, EventInterface* event);
 
 private:
     EventService();
@@ -29,7 +30,7 @@ private:
     boost::asio::io_service io_service_;
     boost::asio::io_service::work work_;
     std::thread thread_;
-    std::unordered_map<int, std::vector<std::function<void(EventInterface*)>>> handlers_;
+    std::unordered_map<std::string, std::vector<std::function<void(EventInterface*)>>> handlers_;
 };
 
 #define EVENTS EventService::instance()

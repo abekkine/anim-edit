@@ -4,7 +4,7 @@
 class EventInterface {
 public:
     virtual ~EventInterface() {}
-    virtual int id() = 0;
+    virtual void dummy() = 0;
 };
 
 #endif // EVENT_INTERFACE_H_

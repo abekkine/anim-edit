@@ -1,6 +1,10 @@
 #include "InputManager.h"
 
 #include <iostream>
+#include <string>
+
+#include "EventService.h"
+#include "QuitEvent.h"
 
 InputManager::InputManager()
 : window_(nullptr),
@@ -35,7 +39,8 @@ void InputManager::Keyboard(GLFWwindow* win, int key, int scancode, int action, 
 
     if (window_ == win) {
         if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
-            // TODO : Issue [quit request event]
+            QuitEvent* event = new QuitEvent();
+            EVENTS.Publish("quit", event);
         } else if (action == GLFW_PRESS) {
             // TODO : Process scancode and mods, too.
             (void)scancode;

@@ -96,7 +96,7 @@ void InputManager::InvokeFrameControlEvent(int key) {
     FrameControlEvent* event = 0;
     switch (key) {
         case GLFW_KEY_SPACE:
-            event = new FrameControlEvent(FrameControlEvent::FrameEventType::ONION_SKIN); break;
+            event = new FrameControlEvent(FrameControlEvent::ONION_SKIN); break;
         case GLFW_KEY_RIGHT:
             event = new FrameControlEvent(FrameControlEvent::NEXT_FRAME); break;
         case GLFW_KEY_LEFT:

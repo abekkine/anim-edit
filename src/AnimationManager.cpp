@@ -10,7 +10,7 @@
 AnimationManager::AnimationManager()
 : test_flag_(false) {
     active_frame_ = 0;
-    number_of_frames_ = 1;
+    number_of_frames_ = 2;
 }
 
 AnimationManager::~AnimationManager() {
@@ -75,16 +75,21 @@ void AnimationManager::frameControlEventHandler(EventInterface* event) {
             case FrameControlEvent::ONION_SKIN:
                 std::cout << "Onion Skin" << std::endl; break;
             case FrameControlEvent::NEXT_FRAME:
-                std::cout << "Next Frame" << std::endl; break;
+                if (active_frame_ < (number_of_frames_-1))
+                    active_frame_++;
+                break;
             case FrameControlEvent::PREV_FRAME:
-                std::cout << "Prev Frame" << std::endl; break;
+                if (active_frame_ > 0) {
+                    active_frame_--;
+                }
             case FrameControlEvent::FIRST_FRAME:
-                std::cout << "First Frame" << std::endl; break;
+                active_frame_ = 0; break;
             case FrameControlEvent::LAST_FRAME:
-                std::cout << "Last Frame" << std::endl; break;
+                active_frame_ = number_of_frames_-1;
             default:
                 break;
         }
+        std::cout << "Frame " << 1+active_frame_ << "/" << number_of_frames_ << std::endl;
     }
 }
 

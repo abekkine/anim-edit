@@ -7,7 +7,6 @@ class QuitEvent : public EventInterface {
 public:
     QuitEvent() {}
     ~QuitEvent() {} 
-    void dummy() {}
 };
 
 #endif  // QUIT_EVENT_H_

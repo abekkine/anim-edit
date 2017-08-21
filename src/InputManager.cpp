@@ -5,6 +5,7 @@
 
 #include "EventService.h"
 #include "QuitEvent.h"
+#include "FrameControlEvent.h"
 
 InputManager::InputManager()
 : window_(nullptr),
@@ -79,10 +80,37 @@ void InputManager::ProcessKeys(int key)
     switch (key)
     {
         case GLFW_KEY_SPACE:
-            std::cout << "SPACE BAR pressed!" << std::endl;
+        case GLFW_KEY_RIGHT:
+        case GLFW_KEY_LEFT:
+        case GLFW_KEY_UP:
+        case GLFW_KEY_DOWN:
+            InvokeFrameControlEvent(key); break;
             break;
         default:
+            std::cout << "Key press : " << key << std::endl;
             break;
+    }
+}
+
+void InputManager::InvokeFrameControlEvent(int key) {
+    FrameControlEvent* event = 0;
+    switch (key) {
+        case GLFW_KEY_SPACE:
+            event = new FrameControlEvent(FrameControlEvent::FrameEventType::ONION_SKIN); break;
+        case GLFW_KEY_RIGHT:
+            event = new FrameControlEvent(FrameControlEvent::NEXT_FRAME); break;
+        case GLFW_KEY_LEFT:
+            event = new FrameControlEvent(FrameControlEvent::PREV_FRAME); break;
+        case GLFW_KEY_UP:
+            event = new FrameControlEvent(FrameControlEvent::FIRST_FRAME); break;
+        case GLFW_KEY_DOWN:
+            event = new FrameControlEvent(FrameControlEvent::LAST_FRAME); break;
+        default:
+            break;
+    }
+
+    if (event != 0) {
+        EVENTS.Publish("keyboard", event);
     }
 }
 

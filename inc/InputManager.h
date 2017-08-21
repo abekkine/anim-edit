@@ -19,6 +19,7 @@ private:
     InputManager();
     ~InputManager();
     void ProcessKeys(int key);
+    void InvokeFrameControlEvent(int key);
 private:
     GLFWwindow* window_;
     int resize_width_;

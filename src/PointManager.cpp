@@ -12,38 +12,29 @@ Point* PointManager::AddPoint(int frame, double x, double y) {
 	return p;
 }
 
-std::vector<Point*> PointManager::GetPointsNearOf(int frame, double x, double y, bool save, double vicinity) {
+std::vector<Point*> PointManager::GetPointsNearOf(int frame, double x, double y, double vicinity) {
 
 	std::vector<Point*> points;
 
 	for (auto point : point_list_) {
-		if (! save) {
-			point->Select(Point::NONE);
-		}
 		if (point->frame_number_ == frame) {
 			double dx = x - point->x_;
 			double dy = y - point->y_;
 			if ((dx*dx + dy*dy)<vicinity) {
-				point->Select(Point::SELECT);
+				if (point->selected_ == Point::NONE) {
+					point->Select(Point::SELECT);
+				}
 				points.push_back(point);
 			}
+			else {
+				point->Select(Point::NONE);
+			}
+		}
+		else {
+			point->Select(Point::NONE);
 		}
 	}
 
 	return points;
 }
 
-bool PointManager::IsIdentical(std::vector<Point*>& a, std::vector<Point*>& b) {
-
-	int checksum = 0;
-
-	for (auto i : a) {
-		checksum += i->id_;
-	}
-
-	for (auto j : b) {
-		checksum -= j->id_;
-	}
-
-	return (checksum == 0);
-}

@@ -6,11 +6,17 @@
 
 #include "EventService.h"
 #include "FrameControlEvent.h"
+#include "CursorEvent.h"
+#include "WorldPositionEvent.h"
+#include "EditEvent.h"
 
 AnimationManager::AnimationManager()
 : test_flag_(false) {
     active_frame_ = 0;
     number_of_frames_ = 2;
+    edit_mode_ = 0;
+    cursor_x_ = 0.0;
+    cursor_y_ = 0.0;
 }
 
 AnimationManager::~AnimationManager() {
@@ -20,6 +26,14 @@ void AnimationManager::Init() {
 
     EVENTS.Subscribe("keyboard",
         std::bind(&AnimationManager::frameControlEventHandler, this, std::placeholders::_1));
+
+    //EVENTS.Subscribe("cursor",
+    //    std::bind(&AnimationManager::cursorEventHandler, this, std::placeholders::_1));
+    EVENTS.Subscribe("wpos",
+        std::bind(&AnimationManager::worldPosEventHandler, this, std::placeholders::_1));
+
+    EVENTS.Subscribe("edit",
+        std::bind(&AnimationManager::editEventHandler, this, std::placeholders::_1));
 
     // TEST : add some components
     AnimComponent* c1 = new AnimComponent(0);
@@ -90,6 +104,70 @@ void AnimationManager::frameControlEventHandler(EventInterface* event) {
                 break;
         }
         std::cout << "Frame " << 1+active_frame_ << "/" << number_of_frames_ << std::endl;
+    }
+}
+
+void AnimationManager::cursorEventHandler(EventInterface* event) {
+    CursorEvent* e = dynamic_cast<CursorEvent*>(event);
+    if (e != 0) {
+        e->GetCursor(cursor_x_, cursor_y_);
+        CursorUpdate();
+    }
+}
+
+void AnimationManager::worldPosEventHandler(EventInterface* event) {
+    WorldPositionEvent* e = dynamic_cast<WorldPositionEvent*>(event);
+    if (e != 0) {
+        e->GetPosition(world_x_, world_y_);
+        CursorUpdate();
+    }
+}
+
+void AnimationManager::editEventHandler(EventInterface* event) {
+    EditEvent* e = dynamic_cast<EditEvent*>(event);
+    if (e != 0) {
+        switch(e->GetType()) {
+            case EditEvent::TOGGLE:
+                edit_mode_ ^= 1;
+                if (edit_mode_) {
+                    std::cout << "Edit Mode On" << std::endl;
+                } else {
+                    std::cout << "Edit Mode Off" << std::endl;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void AnimationManager::CursorUpdate() {
+
+    if (edit_mode_) {
+        SelectComponentsNearTo(world_x_, world_y_);
+    }
+}
+
+void AnimationManager::SelectComponentsNearTo(double x, double y) {
+
+    std::vector<uint8_t> point_selection_list;
+
+    component_selection_list_.clear();
+    for (auto component : components_) {
+        component->Select(0);
+        point_selection_list = component->InVicinityOf(active_frame_, x, y);
+        if (! point_selection_list.empty()) {
+            component_selection_list_[component] = point_selection_list;
+        }
+    }
+
+    if (!component_selection_list_.empty()) {
+        auto first_entry_in_list = component_selection_list_.begin();
+        auto component = first_entry_in_list->first;
+        auto points = first_entry_in_list->second;
+
+        // Select first point of detected component.
+        component->Select(points[0]);
     }
 }
 

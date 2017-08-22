@@ -6,11 +6,14 @@
 #include "EventService.h"
 #include "QuitEvent.h"
 #include "FrameControlEvent.h"
+#include "CursorEvent.h"
+#include "WorldPositionEvent.h"
+#include "EditEvent.h"
 
 InputManager::InputManager()
 : window_(nullptr),
-  resize_width_(-1),
-  resize_height_(-1)
+  screen_width_(-1),
+  screen_height_(-1)
 {
 }
 
@@ -18,9 +21,19 @@ InputManager::~InputManager()
 {
 }
 
-void InputManager::SetWindow(GLFWwindow* win)
+void InputManager::SetWindow(GLFWwindow* win, int width, int height)
 {
     window_ = win;
+    screen_width_ = width;
+    screen_height_ = height;
+}
+
+void InputManager::SetViewport(double l, double r, double b, double t)
+{
+    vp_left_ = l;
+    vp_right_ = r;
+    vp_bottom_ = b;
+    vp_top_ = t;
 }
 
 void InputManager::Resize(GLFWwindow* win, int width, int height)
@@ -29,8 +42,8 @@ void InputManager::Resize(GLFWwindow* win, int width, int height)
 
     if (window_ == win) {
         // TODO : Handle resize event, not needed for now.
-        resize_width_ = width;
-        resize_height_ = height;
+        screen_width_ = width;
+        screen_height_ = height;
     }
 }
 
@@ -68,9 +81,14 @@ void InputManager::Cursor(GLFWwindow* win, double x, double y)
     if (window_ == nullptr) throw;
 
     if (window_ == win) {
-        // TODO
-        (void)x;
-        (void)y;
+        InvokeCursorEvent(x, y);
+
+        double wx, wy;
+        wx = vp_left_ + ((vp_right_ - vp_left_) * x / screen_width_);
+        wy = vp_bottom_ + ((vp_top_ - vp_bottom_) * y / screen_height_);
+        wy = -wy;
+
+        InvokeWorldPositionEvent(wx, wy);
     }
 }
 
@@ -79,6 +97,8 @@ void InputManager::ProcessKeys(int key)
     // TODO : Issue [keypress event], or some complex, evaluated event.
     switch (key)
     {
+        case GLFW_KEY_E:
+            InvokeToggleEditEvent(); break;
         case GLFW_KEY_SPACE:
         case GLFW_KEY_RIGHT:
         case GLFW_KEY_LEFT:
@@ -112,5 +132,20 @@ void InputManager::InvokeFrameControlEvent(int key) {
     if (event != 0) {
         EVENTS.Publish("keyboard", event);
     }
+}
+
+void InputManager::InvokeCursorEvent(double x, double y) {
+    CursorEvent* event = new CursorEvent(x, y);
+    EVENTS.Publish("cursor", event);
+}
+
+void InputManager::InvokeWorldPositionEvent(double x, double y) {
+    WorldPositionEvent* event = new WorldPositionEvent(x, y);
+    EVENTS.Publish("wpos", event);
+}
+
+void InputManager::InvokeToggleEditEvent() {
+    EditEvent* event = new EditEvent(EditEvent::TOGGLE);
+    EVENTS.Publish("edit", event);
 }
 

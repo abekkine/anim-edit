@@ -21,14 +21,16 @@ Display::~Display()
     Exit();
 }
 
-void Display::SetViewport(double left, double right, double top, double bottom, double near, double far)
+void Display::SetViewport(double left, double right, double bottom, double top, double near, double far)
 {
     viewport_left_ = left;
     viewport_right_ = right;
-    viewport_top_ = top;
     viewport_bottom_ = bottom;
+    viewport_top_ = top;
     viewport_near_ = near;
     viewport_far_ = far;
+
+    INPUT.SetViewport(left, right, bottom, top);
 }
 
 void Display::SetScreenSize(int width, int height)
@@ -98,7 +100,7 @@ void Display::InitGraphics()
         throw;
     }
     else {
-        INPUT.SetWindow(window_);
+        INPUT.SetWindow(window_, screen_width_, screen_height_);
     }
 }
 

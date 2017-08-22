@@ -11,7 +11,7 @@ class Display {
 public:
     Display();
     ~Display();
-    void SetViewport(double left, double right, double top, double bottom, double near=-1.0, double far=1.0);
+    void SetViewport(double left, double right, double bottom, double top, double near=-1.0, double far=1.0);
     void SetScreenSize(int width, int height);
     void SetFullscreen(bool value);
     void SetBlending(bool value);
@@ -52,8 +52,6 @@ private:
 
     GLFWwindow* window_;
 };
-
-#define DISPLAY Display::Instance()
 
 #endif // DISPLAY_H_
 

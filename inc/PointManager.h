@@ -13,7 +13,7 @@ public:
     }
 public:
 	Point* AddPoint(int frame, double x, double y);
-	std::vector<Point*> GetPointsNearOf(int frame, double x, double y, double vicinity=25.0);
+	std::vector<Point*> GetPointsNearOf(int frame, double x, double y, bool save=false, double vicinity=25.0);
 private:
 	PointManager();
 	~PointManager();

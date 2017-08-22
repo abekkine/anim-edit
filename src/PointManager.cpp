@@ -12,12 +12,14 @@ Point* PointManager::AddPoint(int frame, double x, double y) {
 	return p;
 }
 
-std::vector<Point*> PointManager::GetPointsNearOf(int frame, double x, double y, double vicinity) {
+std::vector<Point*> PointManager::GetPointsNearOf(int frame, double x, double y, bool save, double vicinity) {
 
 	std::vector<Point*> points;
 
 	for (auto point : point_list_) {
-		point->Select(Point::NONE);
+		if (! save) {
+			point->Select(Point::NONE);
+		}
 		if (point->frame_number_ == frame) {
 			double dx = x - point->x_;
 			double dy = y - point->y_;

@@ -10,7 +10,7 @@ public:
         TOGGLE
     };
 public:
-    EditEvent(EditEventType type) : type_(type) {}
+    explicit EditEvent(EditEventType type) : type_(type) {}
     ~EditEvent() {}
     EditEventType GetType() const {
         return type_;

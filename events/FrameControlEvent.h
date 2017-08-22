@@ -14,7 +14,7 @@ public:
         LAST_FRAME
     };
 public:
-    FrameControlEvent(FrameEventType type) : type_(type) {}
+    explicit FrameControlEvent(FrameEventType type) : type_(type) {}
     ~FrameControlEvent() {}
     FrameEventType GetType() const {
         return type_;

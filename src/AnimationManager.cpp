@@ -6,17 +6,17 @@
 
 #include "EventService.h"
 #include "FrameControlEvent.h"
-#include "CursorEvent.h"
 #include "WorldPositionEvent.h"
 #include "EditEvent.h"
+#include "PointManager.h"
 
 AnimationManager::AnimationManager()
 : test_flag_(false) {
     active_frame_ = 0;
     number_of_frames_ = 2;
     edit_mode_ = 0;
-    cursor_x_ = 0.0;
-    cursor_y_ = 0.0;
+    world_x_ = 0.0;
+    world_y_ = 0.0;
 }
 
 AnimationManager::~AnimationManager() {
@@ -27,8 +27,6 @@ void AnimationManager::Init() {
     EVENTS.Subscribe("keyboard",
         std::bind(&AnimationManager::frameControlEventHandler, this, std::placeholders::_1));
 
-    //EVENTS.Subscribe("cursor",
-    //    std::bind(&AnimationManager::cursorEventHandler, this, std::placeholders::_1));
     EVENTS.Subscribe("wpos",
         std::bind(&AnimationManager::worldPosEventHandler, this, std::placeholders::_1));
 
@@ -38,12 +36,12 @@ void AnimationManager::Init() {
     // TEST : add some components
     AnimComponent* c1 = new AnimComponent(0);
     c1->SetColor(1.0, 0.0, 0.0);
-    c1->SetP0(0.0, 0.0);
+    c1->SetP0(3.0, 0.0);
     c1->SetP1(40.0, 90.0);
 
     AnimComponent* c2 = new AnimComponent(0);
     c2->SetColor(0.0, 1.0, 0.0);
-    c2->SetP0(0.0, 0.0);
+    c2->SetP0(0.0, 2.0);
     c2->SetP1(30.0, -50.0);
 
     AnimComponent* c3 = new AnimComponent(1);
@@ -107,14 +105,6 @@ void AnimationManager::frameControlEventHandler(EventInterface* event) {
     }
 }
 
-void AnimationManager::cursorEventHandler(EventInterface* event) {
-    CursorEvent* e = dynamic_cast<CursorEvent*>(event);
-    if (e != 0) {
-        e->GetCursor(cursor_x_, cursor_y_);
-        CursorUpdate();
-    }
-}
-
 void AnimationManager::worldPosEventHandler(EventInterface* event) {
     WorldPositionEvent* e = dynamic_cast<WorldPositionEvent*>(event);
     if (e != 0) {
@@ -144,30 +134,6 @@ void AnimationManager::editEventHandler(EventInterface* event) {
 void AnimationManager::CursorUpdate() {
 
     if (edit_mode_) {
-        SelectComponentsNearTo(world_x_, world_y_);
+        point_selection_list_ = POINTS.GetPointsNearOf(active_frame_, world_x_, world_y_);
     }
 }
-
-void AnimationManager::SelectComponentsNearTo(double x, double y) {
-
-    std::vector<uint8_t> point_selection_list;
-
-    component_selection_list_.clear();
-    for (auto component : components_) {
-        component->Select(0);
-        point_selection_list = component->InVicinityOf(active_frame_, x, y);
-        if (! point_selection_list.empty()) {
-            component_selection_list_[component] = point_selection_list;
-        }
-    }
-
-    if (!component_selection_list_.empty()) {
-        auto first_entry_in_list = component_selection_list_.begin();
-        auto component = first_entry_in_list->first;
-        auto points = first_entry_in_list->second;
-
-        // Select first point of detected component.
-        component->Select(points[0]);
-    }
-}
-

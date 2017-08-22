@@ -9,6 +9,7 @@
 Display::Display()
 : application_name_("example")
 {
+    window_ = 0;
     SetScreenSize(500, 500);
     SetFullscreen(false);
     SetBlending(true);

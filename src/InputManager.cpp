@@ -6,7 +6,6 @@
 #include "EventService.h"
 #include "QuitEvent.h"
 #include "FrameControlEvent.h"
-#include "CursorEvent.h"
 #include "WorldPositionEvent.h"
 #include "EditEvent.h"
 
@@ -81,7 +80,6 @@ void InputManager::Cursor(GLFWwindow* win, double x, double y)
     if (window_ == nullptr) throw;
 
     if (window_ == win) {
-        InvokeCursorEvent(x, y);
 
         double wx, wy;
         wx = vp_left_ + ((vp_right_ - vp_left_) * x / screen_width_);
@@ -105,7 +103,6 @@ void InputManager::ProcessKeys(int key)
         case GLFW_KEY_UP:
         case GLFW_KEY_DOWN:
             InvokeFrameControlEvent(key); break;
-            break;
         default:
             std::cout << "Key press : " << key << std::endl;
             break;
@@ -132,11 +129,6 @@ void InputManager::InvokeFrameControlEvent(int key) {
     if (event != 0) {
         EVENTS.Publish("keyboard", event);
     }
-}
-
-void InputManager::InvokeCursorEvent(double x, double y) {
-    CursorEvent* event = new CursorEvent(x, y);
-    EVENTS.Publish("cursor", event);
 }
 
 void InputManager::InvokeWorldPositionEvent(double x, double y) {

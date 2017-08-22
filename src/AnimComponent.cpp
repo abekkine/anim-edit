@@ -5,12 +5,15 @@
 #include <iostream>
 #include <vector>
 
+#include "PointManager.h"
+
 AnimComponent::AnimComponent(int frame)
 : frame_number_(frame) {
 
+    selected_ = false;
     SetColor(1.0, 1.0, 1.0);
-    SetP0(0.0, 0.0);
-    SetP1(0.0, 0.0);
+    p0_ = POINTS.AddPoint(frame_number_, 0.0, 0.0);
+    p1_ = POINTS.AddPoint(frame_number_, 0.0, 0.0);
 }
 
 AnimComponent::~AnimComponent() {
@@ -25,67 +28,62 @@ void AnimComponent::SetColor(float r, float g, float b) {
 }
 
 void AnimComponent::SetP0(double x, double y) {
-    x0_ = x;
-    y0_ = y;
+
+    p0_->x_ = x;
+    p0_->y_ = y;
 }
 
 void AnimComponent::SetP1(double x, double y) {
-    x1_ = x;
-    y1_ = y;
+
+    p1_->x_ = x;
+    p1_->y_ = y;
 }
  
 void AnimComponent::Render(int frame) {
 
     if (frame != frame_number_) return;
 
-    if (selected_) {
+    if (p0_->selected_ != Point::NONE ||
+        p1_->selected_ != Point::NONE) {
         glLineWidth(3.0);
     }
     else {
         glLineWidth(1.0);
     }
+
     glColor4fv(color_);
     glBegin(GL_LINES);
-    glVertex2d(x0_, y0_);
-    glVertex2d(x1_, y1_);
+    glVertex3d(p0_->x_, p0_->y_, 0.0);
+    glVertex3d(p1_->x_, p1_->y_, 0.0);
     glEnd();
 
-    glColor3f(1.0, 1.0, 1.0);
-    glPointSize(4.0);
-    glBegin(GL_POINTS);
-    switch( selected_ ) {
-    case 1:
-        glVertex2d(x0_, y0_); break;
-    case 2:
-        glVertex2d(x1_, y1_); break;
-    default:
-        break;
+    if (p0_->selected_ == Point::SELECT) {
+        glPointSize(4.0);
+        glColor3f(1.0, 1.0, 1.0);
+        glBegin(GL_POINTS);
+        glVertex3d(p0_->x_, p0_->y_, -1.0);
+        glEnd();
     }
-    glEnd();
-}
-
-void AnimComponent::Select(uint8_t value) {
-    selected_ = value;
-}
-
-std::vector<uint8_t> AnimComponent::InVicinityOf(int frame, double x, double y, double vicinity) {
-
-    std::vector<uint8_t> list;
-    double dx, dy;
-
-    list.clear();
-
-    if (frame == frame_number_) {
-        dx = (x - x0_); dy = (y - y0_);
-        if ((dx*dx + dy*dy) < vicinity) {
-            list.push_back(1);
-        }
-
-        dx = (x - x1_); dy = (y - y1_);
-        if ((dx*dx + dy*dy) < vicinity) {
-            list.push_back(2);
-        }
+    else if (p0_->selected_ == Point::MARK) {
+        glPointSize(4.0);
+        glColor3f(1.0, 0.0, 1.0);
+        glBegin(GL_POINTS);
+        glVertex3d(p0_->x_, p0_->y_, -1.0);
+        glEnd();
     }
 
-    return list;
+    if (p1_->selected_ == Point::SELECT) {
+        glPointSize(4.0);
+        glColor3f(1.0, 1.0, 1.0);
+        glBegin(GL_POINTS);
+        glVertex3d(p1_->x_, p1_->y_, -1.0);
+        glEnd();
+    }
+    else if (p1_->selected_ == Point::MARK) {
+        glPointSize(4.0);
+        glColor3f(1.0, 0.0, 1.0);
+        glBegin(GL_POINTS);
+        glVertex3d(p1_->x_, p1_->y_, -1.0);
+        glEnd();
+    }
 }

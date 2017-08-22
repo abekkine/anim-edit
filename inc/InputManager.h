@@ -22,7 +22,6 @@ private:
     ~InputManager();
     void ProcessKeys(int key);
     void InvokeFrameControlEvent(int key);
-    void InvokeCursorEvent(double x, double y);
     void InvokeWorldPositionEvent(double x, double y);
     void InvokeToggleEditEvent();
 private:

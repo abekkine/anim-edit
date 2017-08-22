@@ -32,3 +32,18 @@ std::vector<Point*> PointManager::GetPointsNearOf(int frame, double x, double y,
 
 	return points;
 }
+
+bool PointManager::IsIdentical(std::vector<Point*>& a, std::vector<Point*>& b) {
+
+	int checksum = 0;
+
+	for (auto i : a) {
+		checksum += i->id_;
+	}
+
+	for (auto j : b) {
+		checksum -= j->id_;
+	}
+
+	return (checksum == 0);
+}

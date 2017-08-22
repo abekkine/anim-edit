@@ -118,12 +118,7 @@ void AnimationManager::editEventHandler(EventInterface* event) {
     if (e != 0) {
         switch(e->GetType()) {
             case EditEvent::TOGGLE:
-                edit_mode_ ^= 1;
-                if (edit_mode_) {
-                    std::cout << "Edit Mode On" << std::endl;
-                } else {
-                    std::cout << "Edit Mode Off" << std::endl;
-                }
+                ToggleEditMode();
                 break;
             case EditEvent::MARK_NEXT:
                 UpdatePointSelection();
@@ -132,6 +127,23 @@ void AnimationManager::editEventHandler(EventInterface* event) {
                 break;
         }
     }
+}
+
+void AnimationManager::ToggleEditMode() {
+
+    edit_mode_ ^= 1;
+    if (edit_mode_) {
+        std::cout << "Edit Mode On" << std::endl;
+    } else {
+        std::cout << "Edit Mode Off" << std::endl;
+    }
+}
+
+void AnimationManager::ClearSelections() {
+    for (auto point : point_selection_list_) {
+        point->Select(Point::NONE);
+    }
+    point_selection_list_.clear();
 }
 
 void AnimationManager::UpdatePointSelection() {

@@ -9,6 +9,13 @@
 
 class AnimationManager {
 public:
+    enum EditType {
+        NONE,
+        SELECT,
+        MARK,
+        MOVE
+    };
+public:
     AnimationManager();
     ~AnimationManager();
     void Init();
@@ -16,8 +23,10 @@ public:
 private:
     void RenderTest();
     void RenderScene();
+    void ToggleEditMode();
     void CursorUpdate();
     void UpdatePointSelection();
+    void ClearSelections();
 private:
     void frameControlEventHandler(EventInterface* event);
     void worldPosEventHandler(EventInterface* event);

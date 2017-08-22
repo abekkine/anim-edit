@@ -13,10 +13,13 @@ public:
 	~Point();
 	void Select(SelectType value);
 public:
+	int id_;
 	int frame_number_;
 	SelectType selected_;
 	double x_;
 	double y_;
+private:
+	static int num_;
 };
 
 #endif  // POINT_H_

@@ -7,7 +7,8 @@ class EditEvent : public EventInterface {
 public:
     enum EditEventType {
         NONE,
-        TOGGLE
+        TOGGLE,
+        MARK_NEXT
     };
 public:
     explicit EditEvent(EditEventType type) : type_(type) {}

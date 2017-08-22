@@ -24,6 +24,7 @@ private:
     void InvokeFrameControlEvent(int key);
     void InvokeWorldPositionEvent(double x, double y);
     void InvokeToggleEditEvent();
+    void InvokeMarkNextEvent();
 private:
     GLFWwindow* window_;
     int screen_width_;

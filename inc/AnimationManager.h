@@ -17,6 +17,7 @@ private:
     void RenderTest();
     void RenderScene();
     void CursorUpdate();
+    void UpdatePointSelection();
 private:
     void frameControlEventHandler(EventInterface* event);
     void worldPosEventHandler(EventInterface* event);

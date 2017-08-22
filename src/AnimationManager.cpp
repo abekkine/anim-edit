@@ -125,9 +125,37 @@ void AnimationManager::editEventHandler(EventInterface* event) {
                     std::cout << "Edit Mode Off" << std::endl;
                 }
                 break;
+            case EditEvent::MARK_NEXT:
+                UpdatePointSelection();
+                break;
             default:
                 break;
         }
+    }
+}
+
+void AnimationManager::UpdatePointSelection() {
+
+    if (point_selection_list_.empty()) return;
+
+    bool mark_found = false;
+    for (auto iPoint = point_selection_list_.begin(); iPoint != point_selection_list_.end(); ++iPoint)
+    {
+        if ((*iPoint)->selected_ == Point::MARK) {
+            (*iPoint)->Select(Point::SELECT);
+            if ((iPoint + 1) != point_selection_list_.end()) {
+                iPoint++;
+            } else {
+                iPoint = point_selection_list_.begin();
+            }
+            (*iPoint)->Select(Point::MARK);
+            mark_found = true;
+            break;
+        }
+    }
+
+    if (! mark_found) {
+        point_selection_list_[0]->Select(Point::MARK);
     }
 }
 

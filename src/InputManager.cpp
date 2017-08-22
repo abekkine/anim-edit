@@ -8,6 +8,7 @@
 #include "FrameControlEvent.h"
 #include "WorldPositionEvent.h"
 #include "EditEvent.h"
+#include "MouseButtonEvent.h"
 
 InputManager::InputManager()
 : window_(nullptr),
@@ -68,9 +69,23 @@ void InputManager::Button(GLFWwindow* win, int button, int action, int mods)
     if (window_ == nullptr) throw;
 
     if (window_ == win) {
-        // TODO
-        (void)button;
-        (void)action;
+        switch(button) {
+        case GLFW_MOUSE_BUTTON_LEFT:
+            switch (action) {
+            case GLFW_PRESS:
+                InvokeLeftButtonDownEvent(); break;
+            case GLFW_RELEASE:
+                InvokeLeftButtonUpEvent(); break;
+            default:
+                break;
+            }
+            break;
+        case GLFW_MOUSE_BUTTON_RIGHT:
+        case GLFW_MOUSE_BUTTON_MIDDLE:
+        default:
+            break;
+        }
+
         (void)mods;
     }
 }
@@ -131,6 +146,16 @@ void InputManager::InvokeFrameControlEvent(int key) {
     if (event != 0) {
         EVENTS.Publish("keyboard", event);
     }
+}
+
+void InputManager::InvokeLeftButtonDownEvent() {
+    MouseButtonEvent* event = new MouseButtonEvent(MouseButtonEvent::LEFT_DOWN);
+    EVENTS.Publish("button", event);
+}
+
+void InputManager::InvokeLeftButtonUpEvent() {
+    MouseButtonEvent* event = new MouseButtonEvent(MouseButtonEvent::LEFT_UP);
+    EVENTS.Publish("button", event);
 }
 
 void InputManager::InvokeWorldPositionEvent(double x, double y) {

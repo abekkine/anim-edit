@@ -31,6 +31,7 @@ private:
     void frameControlEventHandler(EventInterface* event);
     void worldPosEventHandler(EventInterface* event);
     void editEventHandler(EventInterface* event);
+    void buttonEventHandler(EventInterface* event);
 private:
     const bool test_flag_;
     int number_of_frames_;

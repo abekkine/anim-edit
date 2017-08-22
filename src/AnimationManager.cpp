@@ -8,6 +8,7 @@
 #include "FrameControlEvent.h"
 #include "WorldPositionEvent.h"
 #include "EditEvent.h"
+#include "MouseButtonEvent.h"
 #include "PointManager.h"
 
 AnimationManager::AnimationManager()
@@ -32,6 +33,9 @@ void AnimationManager::Init() {
 
     EVENTS.Subscribe("edit",
         std::bind(&AnimationManager::editEventHandler, this, std::placeholders::_1));
+
+    EVENTS.Subscribe("button",
+        std::bind(&AnimationManager::buttonEventHandler, this, std::placeholders::_1));
 
     // TEST : add some components
     AnimComponent* c1 = new AnimComponent(0);
@@ -129,6 +133,22 @@ void AnimationManager::editEventHandler(EventInterface* event) {
     }
 }
 
+void AnimationManager::buttonEventHandler(EventInterface* event) {
+    MouseButtonEvent* e = dynamic_cast<MouseButtonEvent*>(event);
+    if (e != 0) {
+        switch (e->GetType()) {
+            case MouseButtonEvent::LEFT_DOWN:
+                std::cout << "Left Button Down" << std::endl;
+                break;
+            case MouseButtonEvent::LEFT_UP:
+                std::cout << "Left Button Up" << std::endl;
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 void AnimationManager::ToggleEditMode() {
 
     if (edit_mode_ == NONE) {
@@ -176,6 +196,7 @@ void AnimationManager::UpdatePointSelection() {
 void AnimationManager::CursorUpdate() {
 
     if (edit_mode_) {
+        std::cout << "Edit Mode : " << edit_mode_ << std::endl;
         point_selection_list_ = POINTS.GetPointsNearOf(active_frame_, world_x_, world_y_);
     }
 }

@@ -25,6 +25,8 @@ private:
     void InvokeWorldPositionEvent(double x, double y);
     void InvokeToggleEditEvent();
     void InvokeMarkNextEvent();
+    void InvokeLeftButtonDownEvent();
+    void InvokeLeftButtonUpEvent();
 private:
     GLFWwindow* window_;
     int screen_width_;

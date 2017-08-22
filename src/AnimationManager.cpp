@@ -18,9 +18,15 @@ AnimationManager::AnimationManager()
     edit_mode_ = NONE;
     world_x_ = 0.0;
     world_y_ = 0.0;
+    MarkPoint((Point*)0);
 }
 
 AnimationManager::~AnimationManager() {
+}
+
+void AnimationManager::MarkPoint(Point* mp) {
+
+    marked_point_ = mp;
 }
 
 void AnimationManager::Init() {
@@ -139,9 +145,15 @@ void AnimationManager::buttonEventHandler(EventInterface* event) {
         switch (e->GetType()) {
             case MouseButtonEvent::LEFT_DOWN:
                 std::cout << "Left Button Down" << std::endl;
+                if (marked_point_ != 0) {
+                    edit_mode_ = MOVE;
+                    ClearSelections();
+                }
                 break;
             case MouseButtonEvent::LEFT_UP:
                 std::cout << "Left Button Up" << std::endl;
+                edit_mode_ = SELECT;
+                MarkPoint((Point*)0);
                 break;
             default:
                 break;
@@ -172,6 +184,7 @@ void AnimationManager::UpdatePointSelection() {
 
     if (point_selection_list_.empty()) return;
 
+    MarkPoint((Point*)0);
     bool mark_found = false;
     for (auto iPoint = point_selection_list_.begin(); iPoint != point_selection_list_.end(); ++iPoint)
     {
@@ -182,21 +195,28 @@ void AnimationManager::UpdatePointSelection() {
             } else {
                 iPoint = point_selection_list_.begin();
             }
-            (*iPoint)->Select(Point::MARK);
+            MarkPoint(*iPoint);
+            marked_point_->Select(Point::MARK);
             mark_found = true;
             break;
         }
     }
 
     if (! mark_found) {
-        point_selection_list_[0]->Select(Point::MARK);
+        MarkPoint(point_selection_list_[0]);
+        marked_point_->Select(Point::MARK);
     }
 }
 
 void AnimationManager::CursorUpdate() {
 
-    if (edit_mode_) {
-        std::cout << "Edit Mode : " << edit_mode_ << std::endl;
+    if (edit_mode_ == SELECT) {
         point_selection_list_ = POINTS.GetPointsNearOf(active_frame_, world_x_, world_y_);
+    } else if (edit_mode_ == MOVE) {
+        if (marked_point_ != 0) {
+            std::lock_guard<std::mutex> lock(world_pos_mutex_);
+            marked_point_->x_ = world_x_;
+            marked_point_->y_ = world_y_;
+        }
     }
 }

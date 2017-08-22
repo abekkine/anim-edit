@@ -2,6 +2,7 @@
 #define ANIMATION_MANAGER_H_
 
 #include <vector>
+#include <mutex>
 
 #include "AnimComponent.h"
 #include "EventInterface.h"
@@ -18,6 +19,7 @@ public:
 public:
     AnimationManager();
     ~AnimationManager();
+    void MarkPoint(Point* mp);
     void Init();
     void Render();
 private:
@@ -41,6 +43,8 @@ private:
     double world_y_;
     std::vector<AnimComponent*> components_;
     std::vector<Point*> point_selection_list_;
+    Point* marked_point_;
+    std::mutex world_pos_mutex_;
 };
 
 #endif  // ANIMATION_MANAGER_H_

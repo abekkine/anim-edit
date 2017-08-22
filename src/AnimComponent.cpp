@@ -43,8 +43,8 @@ void AnimComponent::Render(int frame) {
 
     if (frame != frame_number_) return;
 
-    if (p0_->selected_ != Point::NONE ||
-        p1_->selected_ != Point::NONE) {
+    if (p0_->selected_ == Point::MARK ||
+        p1_->selected_ == Point::MARK) {
         glLineWidth(3.0);
     }
     else {

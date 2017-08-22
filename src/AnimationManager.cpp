@@ -14,7 +14,7 @@ AnimationManager::AnimationManager()
 : test_flag_(false) {
     active_frame_ = 0;
     number_of_frames_ = 2;
-    edit_mode_ = 0;
+    edit_mode_ = NONE;
     world_x_ = 0.0;
     world_y_ = 0.0;
 }
@@ -131,11 +131,13 @@ void AnimationManager::editEventHandler(EventInterface* event) {
 
 void AnimationManager::ToggleEditMode() {
 
-    edit_mode_ ^= 1;
-    if (edit_mode_) {
-        std::cout << "Edit Mode On" << std::endl;
+    if (edit_mode_ == NONE) {
+        edit_mode_ = SELECT;
+        std::cout << "Edit Mode : SELECT" << std::endl;
     } else {
-        std::cout << "Edit Mode Off" << std::endl;
+        edit_mode_ = NONE;
+        std::cout << "Edit Mode : NONE" << std::endl;
+        ClearSelections();
     }
 }
 

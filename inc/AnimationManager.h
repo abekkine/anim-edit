@@ -35,7 +35,7 @@ private:
     const bool test_flag_;
     int number_of_frames_;
     int active_frame_;
-    uint8_t edit_mode_;
+    EditType edit_mode_;
     double world_x_;
     double world_y_;
     std::vector<AnimComponent*> components_;

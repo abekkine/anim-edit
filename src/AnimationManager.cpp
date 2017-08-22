@@ -133,6 +133,9 @@ void AnimationManager::editEventHandler(EventInterface* event) {
             case EditEvent::MARK_NEXT:
                 UpdatePointSelection();
                 break;
+            case EditEvent::ADD_COMPONENT:
+                AddComponent();
+                break;
             default:
                 break;
         }
@@ -219,4 +222,15 @@ void AnimationManager::CursorUpdate() {
             marked_point_->y_ = world_y_;
         }
     }
+}
+
+void AnimationManager::AddComponent() {
+    std::cout << "Add Component Event" << std::endl;
+
+    AnimComponent* c = new AnimComponent(active_frame_);
+    c->SetColor(0.8, 0.8, 0.8);
+    c->SetP0(world_x_, world_y_);
+    c->SetP1(world_x_+10.0, world_y_);
+
+    components_.push_back(c);
 }

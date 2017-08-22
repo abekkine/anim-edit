@@ -114,6 +114,8 @@ void InputManager::ProcessKeys(int key)
             InvokeToggleEditEvent(); break;
         case GLFW_KEY_M:
             InvokeMarkNextEvent(); break;
+        case GLFW_KEY_A:
+            InvokeAddComponentEvent(); break;
         case GLFW_KEY_SPACE:
         case GLFW_KEY_RIGHT:
         case GLFW_KEY_LEFT:
@@ -170,5 +172,10 @@ void InputManager::InvokeToggleEditEvent() {
 
 void InputManager::InvokeMarkNextEvent() {
     EditEvent* event = new EditEvent(EditEvent::MARK_NEXT);
+    EVENTS.Publish("edit", event);
+}
+
+void InputManager::InvokeAddComponentEvent() {
+    EditEvent* event = new EditEvent(EditEvent::ADD_COMPONENT);
     EVENTS.Publish("edit", event);
 }

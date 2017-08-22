@@ -26,6 +26,7 @@ private:
     void RenderTest();
     void RenderScene();
     void ToggleEditMode();
+    void AddComponent();
     void CursorUpdate();
     void UpdatePointSelection();
     void ClearSelections();

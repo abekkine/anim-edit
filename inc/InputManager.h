@@ -25,6 +25,7 @@ private:
     void InvokeWorldPositionEvent(double x, double y);
     void InvokeToggleEditEvent();
     void InvokeMarkNextEvent();
+    void InvokeAddComponentEvent();
     void InvokeLeftButtonDownEvent();
     void InvokeLeftButtonUpEvent();
 private:

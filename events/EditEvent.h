@@ -8,7 +8,8 @@ public:
     enum EditEventType {
         NONE,
         TOGGLE,
-        MARK_NEXT
+        MARK_NEXT,
+        ADD_COMPONENT
     };
 public:
     explicit EditEvent(EditEventType type) : type_(type) {}

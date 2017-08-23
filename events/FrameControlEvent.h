@@ -7,7 +7,6 @@ class FrameControlEvent : public EventInterface {
 public:
     enum FrameEventType {
         NONE,
-        ONION_SKIN,
         NEXT_FRAME,
         PREV_FRAME,
         FIRST_FRAME,

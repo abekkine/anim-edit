@@ -118,7 +118,9 @@ void InputManager::ProcessKeys(int key)
             InvokeAddComponentEvent(); break;
         case GLFW_KEY_F:
             InvokeAddFrameEvent(); break;
-        case GLFW_KEY_SPACE:
+        case GLFW_KEY_O:
+            InvokeToggleOnionSkin(); break;
+
         case GLFW_KEY_RIGHT:
         case GLFW_KEY_LEFT:
         case GLFW_KEY_UP:
@@ -133,8 +135,6 @@ void InputManager::ProcessKeys(int key)
 void InputManager::InvokeFrameControlEvent(int key) {
     FrameControlEvent* event = 0;
     switch (key) {
-        case GLFW_KEY_SPACE:
-            event = new FrameControlEvent(FrameControlEvent::ONION_SKIN); break;
         case GLFW_KEY_RIGHT:
             event = new FrameControlEvent(FrameControlEvent::NEXT_FRAME); break;
         case GLFW_KEY_LEFT:
@@ -168,7 +168,7 @@ void InputManager::InvokeWorldPositionEvent(double x, double y) {
 }
 
 void InputManager::InvokeToggleEditEvent() {
-    EditEvent* event = new EditEvent(EditEvent::TOGGLE);
+    EditEvent* event = new EditEvent(EditEvent::TOGGLE_EDIT);
     EVENTS.Publish("edit", event);
 }
 
@@ -184,5 +184,10 @@ void InputManager::InvokeAddComponentEvent() {
 
 void InputManager::InvokeAddFrameEvent() {
     EditEvent* event = new EditEvent(EditEvent::ADD_FRAME);
+    EVENTS.Publish("edit", event);
+}
+
+void InputManager::InvokeToggleOnionSkin() {
+    EditEvent* event = new EditEvent(EditEvent::TOGGLE_ONION_SKIN);
     EVENTS.Publish("edit", event);
 }

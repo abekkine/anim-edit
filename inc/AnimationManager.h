@@ -26,11 +26,13 @@ private:
     void RenderTest();
     void RenderScene();
     void ToggleEditMode();
+    void ToggleOnionSkin();
     void AddComponent();
     void AddFrame();
     void CursorUpdate();
     void UpdatePointSelection();
     void ClearSelections();
+    void CalculateAlphaFrames();
 private:
     void frameControlEventHandler(EventInterface* event);
     void worldPosEventHandler(EventInterface* event);
@@ -41,12 +43,15 @@ private:
     int number_of_frames_;
     int active_frame_;
     EditType edit_mode_;
+    uint8_t onion_skin_mode_;
+    int max_onion_frames_;
     double world_x_;
     double world_y_;
     std::vector<AnimComponent*> components_;
     std::vector<Point*> point_selection_list_;
     Point* marked_point_;
     std::mutex world_pos_mutex_;
+    std::vector<int> alpha_frames_;
 };
 
 #endif  // ANIMATION_MANAGER_H_

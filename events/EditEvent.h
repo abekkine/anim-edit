@@ -7,10 +7,11 @@ class EditEvent : public EventInterface {
 public:
     enum EditEventType {
         NONE,
-        TOGGLE,
+        TOGGLE_EDIT,
         MARK_NEXT,
         ADD_COMPONENT,
-        ADD_FRAME
+        ADD_FRAME,
+        TOGGLE_ONION_SKIN
     };
 public:
     explicit EditEvent(EditEventType type) : type_(type) {}

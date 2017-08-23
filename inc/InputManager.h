@@ -24,6 +24,7 @@ private:
     void InvokeFrameControlEvent(int key);
     void InvokeWorldPositionEvent(double x, double y);
     void InvokeToggleEditEvent();
+    void InvokeToggleOnionSkin();
     void InvokeMarkNextEvent();
     void InvokeAddComponentEvent();
     void InvokeAddFrameEvent();

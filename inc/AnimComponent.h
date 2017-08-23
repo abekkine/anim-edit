@@ -14,9 +14,10 @@ public:
     void SetColor(float r, float g, float b);
     void SetP0(double x, double y);
     void SetP1(double x, double y);
+    void RenderLines();
+    void RenderPoints();
     void Render(int frame);
-    // std::vector<uint8_t> InVicinityOf(int frame, double x, double y, double vicinity=25.0);
-    // void Select(uint8_t value);
+    void RenderAlpha(std::vector<int>& alpha_frames);
 private:
     uint8_t selected_;
     int frame_number_;

@@ -16,6 +16,8 @@ AnimationManager::AnimationManager()
     active_frame_ = 0;
     number_of_frames_ = 2;
     edit_mode_ = NONE;
+    onion_skin_mode_ = 0;
+    max_onion_frames_ = 3;
     world_x_ = 0.0;
     world_y_ = 0.0;
     MarkPoint((Point*)0);
@@ -77,6 +79,9 @@ void AnimationManager::RenderScene() {
 
     for(auto component : components_) {
         component->Render(active_frame_);
+        if (onion_skin_mode_) {
+            component->RenderAlpha(alpha_frames_);
+        }
     }
 }
 
@@ -94,8 +99,6 @@ void AnimationManager::frameControlEventHandler(EventInterface* event) {
     FrameControlEvent* e = dynamic_cast<FrameControlEvent*>(event);
     if (e != 0) {
         switch(e->GetType()) {
-            case FrameControlEvent::ONION_SKIN:
-                std::cout << "Onion Skin" << std::endl; break;
             case FrameControlEvent::NEXT_FRAME:
                 if (active_frame_ < (number_of_frames_-1))
                     active_frame_++;
@@ -113,6 +116,8 @@ void AnimationManager::frameControlEventHandler(EventInterface* event) {
                 break;
         }
         std::cout << "Frame " << 1+active_frame_ << "/" << number_of_frames_ << std::endl;
+
+        CalculateAlphaFrames();
     }
 }
 
@@ -128,7 +133,7 @@ void AnimationManager::editEventHandler(EventInterface* event) {
     EditEvent* e = dynamic_cast<EditEvent*>(event);
     if (e != 0) {
         switch(e->GetType()) {
-            case EditEvent::TOGGLE:
+            case EditEvent::TOGGLE_EDIT:
                 ToggleEditMode();
                 break;
             case EditEvent::MARK_NEXT:
@@ -139,6 +144,9 @@ void AnimationManager::editEventHandler(EventInterface* event) {
                 break;
             case EditEvent::ADD_FRAME:
                 AddFrame();
+                break;
+            case EditEvent::TOGGLE_ONION_SKIN:
+                ToggleOnionSkin();
                 break;
             default:
                 break;
@@ -242,4 +250,36 @@ void AnimationManager::AddComponent() {
 void AnimationManager::AddFrame() {
 
     number_of_frames_++;
+}
+
+void AnimationManager::ToggleOnionSkin() {
+
+    onion_skin_mode_ ^= 1;
+
+    if (onion_skin_mode_) {
+        std::cout << "Onion Skin : ON" << std::endl;
+        CalculateAlphaFrames();
+    } else {
+        std::cout << "Onion Skin : OFF" << std::endl;
+    }
+}
+
+void AnimationManager::CalculateAlphaFrames() {
+    // calculate alpha frames, based on current frame.
+    if (max_onion_frames_ > number_of_frames_) {
+        for (int i=0 ; i < (max_onion_frames_ - number_of_frames_); i++) {
+            AddFrame();
+        }
+    }
+
+    alpha_frames_.clear();
+    int alpha_frame;
+    for (int i=1; i<=max_onion_frames_; i++) {
+        alpha_frame = active_frame_ - i;
+        if (alpha_frame < 0) {
+            alpha_frame += number_of_frames_;
+        }
+        alpha_frames_.push_back(alpha_frame);
+    }
+
 }

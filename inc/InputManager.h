@@ -26,6 +26,7 @@ private:
     void ToggleOnionSkin();
     void MarkNextPoint();
     void AddNewComponent();
+    void DeleteSelectedComponent();
     void AddNewFrame();
     void LeftButtonDown();
     void LeftButtonUp();

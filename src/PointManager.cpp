@@ -4,8 +4,8 @@ PointManager::PointManager() {}
 
 PointManager::~PointManager() {}
 
-Point* PointManager::AddPoint(int frame, double x, double y) {
-	Point* p = new Point(frame, x, y);
+Point* PointManager::AddPoint(int parent, int frame, double x, double y) {
+	Point* p = new Point(parent, frame, x, y);
 
 	point_list_.push_back(p);
 

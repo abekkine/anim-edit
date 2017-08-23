@@ -9,10 +9,11 @@ public:
 		MARK
 	};
 public:
-	Point(int frame, double x, double y);
+	Point(int parent, int frame, double x, double y);
 	~Point();
 	void Select(SelectType value);
 public:
+	int parent_;
 	int id_;
 	int frame_number_;
 	SelectType selected_;

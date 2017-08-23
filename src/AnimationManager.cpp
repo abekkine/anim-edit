@@ -45,26 +45,6 @@ void AnimationManager::Init() {
 
     EVENTS.Subscribe("button",
         std::bind(&AnimationManager::buttonEventHandler, this, std::placeholders::_1));
-
-    // TEST : add some components
-    AnimComponent* c1 = new AnimComponent(0);
-    c1->SetColor(1.0, 0.0, 0.0);
-    c1->SetP0(3.0, 0.0);
-    c1->SetP1(40.0, 90.0);
-
-    AnimComponent* c2 = new AnimComponent(0);
-    c2->SetColor(0.0, 1.0, 0.0);
-    c2->SetP0(0.0, 2.0);
-    c2->SetP1(30.0, -50.0);
-
-    AnimComponent* c3 = new AnimComponent(1);
-    c3->SetColor(0.0, 0.0, 1.0);
-    c3->SetP0(0.0, 0.0);
-    c3->SetP1(-40.0, 60.0);
-    
-    components_.push_back(c1);
-    components_.push_back(c2);
-    components_.push_back(c3);
 }
 
 void AnimationManager::Render() {
@@ -153,6 +133,9 @@ void AnimationManager::editEventHandler(EventInterface* event) {
             case EditEvent::TOGGLE_ONION_SKIN:
                 ToggleOnionSkin();
                 break;
+            case EditEvent::DELETE_COMPONENT:
+                DeleteComponent();
+                break;
             default:
                 break;
         }
@@ -194,6 +177,8 @@ void AnimationManager::ToggleEditMode() {
 }
 
 void AnimationManager::ClearSelections() {
+    // DEBUG
+    std::cout << "ClearSelections()" << std::endl;  
     for (auto point : point_selection_list_) {
         point->Select(Point::NONE);
     }
@@ -250,6 +235,28 @@ void AnimationManager::AddComponent() {
     c->SetP1(world_x_+10.0, world_y_);
 
     components_.push_back(c);
+}
+
+void AnimationManager::DeleteComponent() {
+    std::cout << "Delete Component Event" << std::endl;
+
+    CursorUpdate();
+    if (marked_point_ != 0) {
+        if (marked_point_->selected_ == Point::MARK) {
+            std::cout << "Component to be deleted " << marked_point_->parent_ << std::endl;
+            for (auto iC=components_.begin(); iC!=components_.end(); ++iC) {
+                if ((*iC)->id_ == marked_point_->parent_) {
+
+                    std::lock_guard<std::mutex> lock(component_mutex_);
+                    delete (*iC);
+                    components_.erase(iC);
+                    break;
+                }
+            }
+        } else {
+            marked_point_ = 0;
+        }
+    }
 }
 
 void AnimationManager::AddFrame() {

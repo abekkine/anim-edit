@@ -11,7 +11,8 @@ public:
         MARK_NEXT,
         ADD_COMPONENT,
         ADD_FRAME,
-        TOGGLE_ONION_SKIN
+        TOGGLE_ONION_SKIN,
+        DELETE_COMPONENT
     };
 public:
     explicit EditEvent(EditEventType type) : type_(type) {}

@@ -28,6 +28,7 @@ private:
     void ToggleEditMode();
     void ToggleOnionSkin();
     void AddComponent();
+    void DeleteComponent();
     void AddFrame();
     void CursorUpdate();
     void UpdatePointSelection();
@@ -51,6 +52,7 @@ private:
     std::vector<Point*> point_selection_list_;
     Point* marked_point_;
     std::mutex world_pos_mutex_;
+    std::mutex component_mutex_;
     std::vector<int> alpha_frames_;
 };
 

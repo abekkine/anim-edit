@@ -3,8 +3,10 @@ SRC = $(wildcard src/*.cpp) main.cpp
 OBJ = $(SRC:%.cpp=%.o)
 CXX = g++
 
-CFLAGS = -g -std=c++11 -I./inc -I./events -Wall -Wextra -Werror -Wfatal-errors -pthread
-LIBS = -lboost_system -lGL -lglfw
+CFLAGS  = -g -std=c++11
+CFLAGS += -I/usr/include/freetype2 -I./inc -I./events
+CFLAGS += -Wall -Wextra -Werror -Wfatal-errors
+LIBS = -lboost_system -lGL -lglfw -lftgl -pthread
 
 all: version application
 

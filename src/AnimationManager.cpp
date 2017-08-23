@@ -9,6 +9,7 @@
 #include "WorldPositionEvent.h"
 #include "EditEvent.h"
 #include "MouseButtonEvent.h"
+#include "UiDisplayEvent.h"
 #include "PointManager.h"
 
 AnimationManager::AnimationManager()
@@ -115,9 +116,13 @@ void AnimationManager::frameControlEventHandler(EventInterface* event) {
             default:
                 break;
         }
-        std::cout << "Frame " << 1+active_frame_ << "/" << number_of_frames_ << std::endl;
 
         CalculateAlphaFrames();
+        {
+            UiDisplayEvent* event = new UiDisplayEvent(
+                "frame", 10, 10, std::to_string(active_frame_));
+            EVENTS.Publish("ui", event);
+        }
     }
 }
 
@@ -281,5 +286,4 @@ void AnimationManager::CalculateAlphaFrames() {
         }
         alpha_frames_.push_back(alpha_frame);
     }
-
 }

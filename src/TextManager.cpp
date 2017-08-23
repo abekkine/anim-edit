@@ -2,18 +2,6 @@
 
 #include <iostream>
 
-TextManager* TextManager::instance_ = 0;
-
-TextManager* TextManager::Instance()
-{
-	if (instance_ == 0)
-	{
-		instance_ = new TextManager();
-	}
-
-	return instance_;
-}
-
 TextManager::TextManager()
 {
 }
@@ -77,6 +65,6 @@ void TextManager::AddFont(std::string label, std::string path)
 		std::cerr << "Unable to add given font!" << std::endl;
 		throw;
 	}
-	
+
 	fonts_[label] = font_;
 }

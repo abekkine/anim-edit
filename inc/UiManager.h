@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include "EventInterface.h"
+#include "TextManager.h"
 
 class UiManager {
 private:
@@ -23,6 +24,7 @@ private:
 private:
     const bool testFlag_;
     std::unordered_map<std::string, UiText> text_list_;
+    TextManager* text_;
 };
 
 #endif  // UI_MANAGER_H_

@@ -2,7 +2,6 @@
 
 #include <GLFW/glfw3.h>
 
-#include "TextManager.h"
 #include "EventService.h"
 #include "UiDisplayEvent.h"
 
@@ -11,11 +10,14 @@ UiManager::UiManager()
 }
 
 UiManager::~UiManager() {
+    delete text_;
 }
 
 void UiManager::Init() {
 
-    TextManager::Instance()->AddFont("Ubuntu", "./Ubuntu.ttf");
+    text_ = new TextManager();
+    text_->Init();
+    text_->AddFont("Ubuntu", "./Ubuntu.ttf");
 
     EVENTS.Subscribe("ui",
         std::bind(&UiManager::handleUiDisplayEvent, this, std::placeholders::_1));
@@ -26,13 +28,13 @@ void UiManager::Render() {
         RenderTest();
     }
     else {
-        TextManager::Instance()->UseFont("Ubuntu", 20);
+        text_->UseFont("Ubuntu", 20);
         glColor3f(1.0f, 1.0f, 1.0f);
 
         for (auto entry : text_list_) {
             auto text = entry.second;
             glRasterPos2i(text.x, text.y);
-            TextManager::Instance()->Render(text.message);
+            text_->Render(text.message);
         }
     }
 }
@@ -47,10 +49,10 @@ void UiManager::RenderTest() {
     glVertex2i(0, 40);
     glEnd();
 
-    TextManager::Instance()->UseFont("Ubuntu", 20);
+    text_->UseFont("Ubuntu", 20);
     glColor3f(1.0f, 1.0f, 1.0f);
     glRasterPos2i(10, 10);
-    TextManager::Instance()->Render( "ABC" );
+    text_->Render( "ABC" );
 }
 
 void UiManager::handleUiDisplayEvent(EventInterface* event) {

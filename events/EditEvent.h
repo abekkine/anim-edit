@@ -9,7 +9,8 @@ public:
         NONE,
         TOGGLE,
         MARK_NEXT,
-        ADD_COMPONENT
+        ADD_COMPONENT,
+        ADD_FRAME
     };
 public:
     explicit EditEvent(EditEventType type) : type_(type) {}

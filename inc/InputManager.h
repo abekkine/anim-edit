@@ -26,6 +26,7 @@ private:
     void InvokeToggleEditEvent();
     void InvokeMarkNextEvent();
     void InvokeAddComponentEvent();
+    void InvokeAddFrameEvent();
     void InvokeLeftButtonDownEvent();
     void InvokeLeftButtonUpEvent();
 private:

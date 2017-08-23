@@ -104,6 +104,7 @@ void AnimationManager::frameControlEventHandler(EventInterface* event) {
                 if (active_frame_ > 0) {
                     active_frame_--;
                 }
+                break;
             case FrameControlEvent::FIRST_FRAME:
                 active_frame_ = 0; break;
             case FrameControlEvent::LAST_FRAME:
@@ -135,6 +136,9 @@ void AnimationManager::editEventHandler(EventInterface* event) {
                 break;
             case EditEvent::ADD_COMPONENT:
                 AddComponent();
+                break;
+            case EditEvent::ADD_FRAME:
+                AddFrame();
                 break;
             default:
                 break;
@@ -233,4 +237,9 @@ void AnimationManager::AddComponent() {
     c->SetP1(world_x_+10.0, world_y_);
 
     components_.push_back(c);
+}
+
+void AnimationManager::AddFrame() {
+
+    number_of_frames_++;
 }

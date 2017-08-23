@@ -21,15 +21,18 @@ private:
     InputManager();
     ~InputManager();
     void ProcessKeys(int key);
-    void InvokeFrameControlEvent(int key);
-    void InvokeWorldPositionEvent(double x, double y);
-    void InvokeToggleEditEvent();
-    void InvokeToggleOnionSkin();
-    void InvokeMarkNextEvent();
-    void InvokeAddComponentEvent();
-    void InvokeAddFrameEvent();
-    void InvokeLeftButtonDownEvent();
-    void InvokeLeftButtonUpEvent();
+    void UpdateWorldPosition(double x, double y);
+    void ToggleEditMode();
+    void ToggleOnionSkin();
+    void MarkNextPoint();
+    void AddNewComponent();
+    void AddNewFrame();
+    void LeftButtonDown();
+    void LeftButtonUp();
+    void GotoNextFrame();
+    void GotoPrevFrame();
+    void GotoFirstFrame();
+    void GotoLastFrame();
 private:
     GLFWwindow* window_;
     int screen_width_;

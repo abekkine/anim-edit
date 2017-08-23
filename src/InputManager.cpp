@@ -73,9 +73,9 @@ void InputManager::Button(GLFWwindow* win, int button, int action, int mods)
         case GLFW_MOUSE_BUTTON_LEFT:
             switch (action) {
             case GLFW_PRESS:
-                InvokeLeftButtonDownEvent(); break;
+                LeftButtonDown(); break;
             case GLFW_RELEASE:
-                InvokeLeftButtonUpEvent(); break;
+                LeftButtonUp(); break;
             default:
                 break;
             }
@@ -101,7 +101,7 @@ void InputManager::Cursor(GLFWwindow* win, double x, double y)
         wy = vp_bottom_ + ((vp_top_ - vp_bottom_) * y / screen_height_);
         wy = -wy;
 
-        InvokeWorldPositionEvent(wx, wy);
+        UpdateWorldPosition(wx, wy);
     }
 }
 
@@ -111,83 +111,85 @@ void InputManager::ProcessKeys(int key)
     switch (key)
     {
         case GLFW_KEY_E:
-            InvokeToggleEditEvent(); break;
+            ToggleEditMode(); break;
         case GLFW_KEY_M:
-            InvokeMarkNextEvent(); break;
+            MarkNextPoint(); break;
         case GLFW_KEY_A:
-            InvokeAddComponentEvent(); break;
+            AddNewComponent(); break;
         case GLFW_KEY_F:
-            InvokeAddFrameEvent(); break;
+            AddNewFrame(); break;
         case GLFW_KEY_O:
-            InvokeToggleOnionSkin(); break;
-
+            ToggleOnionSkin(); break;
         case GLFW_KEY_RIGHT:
+            GotoNextFrame(); break;
         case GLFW_KEY_LEFT:
+            GotoPrevFrame(); break;
         case GLFW_KEY_UP:
+            GotoFirstFrame(); break;
         case GLFW_KEY_DOWN:
-            InvokeFrameControlEvent(key); break;
+            GotoLastFrame(); break;
         default:
             std::cout << "Key press : " << key << std::endl;
             break;
     }
 }
 
-void InputManager::InvokeFrameControlEvent(int key) {
-    FrameControlEvent* event = 0;
-    switch (key) {
-        case GLFW_KEY_RIGHT:
-            event = new FrameControlEvent(FrameControlEvent::NEXT_FRAME); break;
-        case GLFW_KEY_LEFT:
-            event = new FrameControlEvent(FrameControlEvent::PREV_FRAME); break;
-        case GLFW_KEY_UP:
-            event = new FrameControlEvent(FrameControlEvent::FIRST_FRAME); break;
-        case GLFW_KEY_DOWN:
-            event = new FrameControlEvent(FrameControlEvent::LAST_FRAME); break;
-        default:
-            break;
-    }
-
-    if (event != 0) {
-        EVENTS.Publish("keyboard", event);
-    }
+void InputManager::GotoNextFrame() {
+    FrameControlEvent* event = new FrameControlEvent(FrameControlEvent::NEXT_FRAME);
+    EVENTS.Publish("frame", event);
 }
 
-void InputManager::InvokeLeftButtonDownEvent() {
+void InputManager::GotoPrevFrame() {
+    FrameControlEvent* event = new FrameControlEvent(FrameControlEvent::PREV_FRAME);
+    EVENTS.Publish("frame", event);
+}
+
+void InputManager::GotoFirstFrame() {
+    FrameControlEvent* event = new FrameControlEvent(FrameControlEvent::FIRST_FRAME);
+    EVENTS.Publish("frame", event);
+}
+
+void InputManager::GotoLastFrame() {
+    FrameControlEvent* event = new FrameControlEvent(FrameControlEvent::LAST_FRAME);
+    EVENTS.Publish("frame", event);
+}
+
+void InputManager::LeftButtonDown() {
     MouseButtonEvent* event = new MouseButtonEvent(MouseButtonEvent::LEFT_DOWN);
     EVENTS.Publish("button", event);
 }
 
-void InputManager::InvokeLeftButtonUpEvent() {
+void InputManager::LeftButtonUp() {
     MouseButtonEvent* event = new MouseButtonEvent(MouseButtonEvent::LEFT_UP);
     EVENTS.Publish("button", event);
 }
 
-void InputManager::InvokeWorldPositionEvent(double x, double y) {
+void InputManager::UpdateWorldPosition(double x, double y) {
     WorldPositionEvent* event = new WorldPositionEvent(x, y);
-    EVENTS.Publish("wpos", event);
+    EVENTS.Publish("pos", event);
 }
 
-void InputManager::InvokeToggleEditEvent() {
+void InputManager::ToggleEditMode() {
     EditEvent* event = new EditEvent(EditEvent::TOGGLE_EDIT);
     EVENTS.Publish("edit", event);
 }
 
-void InputManager::InvokeMarkNextEvent() {
+void InputManager::MarkNextPoint() {
     EditEvent* event = new EditEvent(EditEvent::MARK_NEXT);
     EVENTS.Publish("edit", event);
 }
 
-void InputManager::InvokeAddComponentEvent() {
+void InputManager::AddNewComponent() {
     EditEvent* event = new EditEvent(EditEvent::ADD_COMPONENT);
     EVENTS.Publish("edit", event);
 }
 
-void InputManager::InvokeAddFrameEvent() {
+void InputManager::AddNewFrame() {
     EditEvent* event = new EditEvent(EditEvent::ADD_FRAME);
     EVENTS.Publish("edit", event);
 }
 
-void InputManager::InvokeToggleOnionSkin() {
+void InputManager::ToggleOnionSkin() {
     EditEvent* event = new EditEvent(EditEvent::TOGGLE_ONION_SKIN);
     EVENTS.Publish("edit", event);
 }

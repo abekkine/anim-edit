@@ -34,10 +34,10 @@ void AnimationManager::MarkPoint(Point* mp) {
 
 void AnimationManager::Init() {
 
-    EVENTS.Subscribe("keyboard",
+    EVENTS.Subscribe("frame",
         std::bind(&AnimationManager::frameControlEventHandler, this, std::placeholders::_1));
 
-    EVENTS.Subscribe("wpos",
+    EVENTS.Subscribe("pos",
         std::bind(&AnimationManager::worldPosEventHandler, this, std::placeholders::_1));
 
     EVENTS.Subscribe("edit",

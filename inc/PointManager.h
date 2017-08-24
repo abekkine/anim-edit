@@ -20,7 +20,6 @@ private:
 	~PointManager();
 private:
 	std::vector<Point*> point_list_;
-	std::mutex point_mutex_;
 };
 
 #define POINTS PointManager::Instance()

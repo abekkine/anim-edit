@@ -12,7 +12,8 @@ public:
         ADD_COMPONENT,
         ADD_FRAME,
         TOGGLE_ONION_SKIN,
-        DELETE_COMPONENT
+        DELETE_COMPONENT,
+        DELETE_FRAME
     };
 public:
     explicit EditEvent(EditEventType type) : type_(type) {}

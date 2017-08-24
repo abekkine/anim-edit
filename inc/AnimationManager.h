@@ -29,11 +29,14 @@ private:
     void ToggleOnionSkin();
     void AddComponent();
     void DeleteComponent();
+    void DeleteFrame();
     void AddFrame();
     void CursorUpdate();
     void UpdatePointSelection();
     void ClearSelections();
     void CalculateAlphaFrames();
+    void DeleteComponentsOf(int frame);
+    void MoveComponentsBackOneFrame(int frame);
 private:
     void frameControlEventHandler(EventInterface* event);
     void worldPosEventHandler(EventInterface* event);

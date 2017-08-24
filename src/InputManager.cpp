@@ -118,6 +118,8 @@ void InputManager::ProcessKeys(int key)
             AddNewComponent(); break;
         case GLFW_KEY_D:
             DeleteSelectedComponent(); break;
+        case GLFW_KEY_X:
+            DeleteActiveFrame(); break;
         case GLFW_KEY_F:
             AddNewFrame(); break;
         case GLFW_KEY_O:
@@ -198,5 +200,10 @@ void InputManager::ToggleOnionSkin() {
 
 void InputManager::DeleteSelectedComponent() {
     EditEvent* event = new EditEvent(EditEvent::DELETE_COMPONENT);
+    EVENTS.Publish("edit", event);
+}
+
+void InputManager::DeleteActiveFrame() {
+    EditEvent* event = new EditEvent(EditEvent::DELETE_FRAME);
     EVENTS.Publish("edit", event);
 }

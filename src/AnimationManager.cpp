@@ -141,6 +141,9 @@ void AnimationManager::editEventHandler(EventInterface* event) {
             case EditEvent::DELETE_COMPONENT:
                 DeleteComponent();
                 break;
+            case EditEvent::DELETE_FRAME:
+                DeleteFrame();
+                break;
             default:
                 break;
         }
@@ -250,17 +253,29 @@ void AnimationManager::DeleteComponent() {
     if (marked_point_ != 0) {
         if (marked_point_->selected_ == Point::MARK) {
             std::cout << "Component to be deleted " << marked_point_->parent_ << std::endl;
-            for (auto iC=components_.begin(); iC!=components_.end(); ++iC) {
+            for (auto iC=components_.begin(); iC!=components_.end();) {
                 if ((*iC)->id_ == marked_point_->parent_) {
 
                     delete (*iC);
                     components_.erase(iC);
                     break;
                 }
+                else {
+                    ++iC;
+                }
             }
         } else {
             marked_point_ = 0;
         }
+    }
+}
+
+void AnimationManager::DeleteFrame() {
+    if (number_of_frames_ > 1) {
+        std::cout << "Delete frame(" << active_frame_ << ")" << std::endl;
+        DeleteComponentsOf(active_frame_);
+        MoveComponentsBackOneFrame(active_frame_);
+        number_of_frames_--;
     }
 }
 
@@ -297,5 +312,27 @@ void AnimationManager::CalculateAlphaFrames() {
             alpha_frame += number_of_frames_;
         }
         alpha_frames_.push_back(alpha_frame);
+    }
+}
+
+void AnimationManager::DeleteComponentsOf(int frame) {
+
+    for(auto iC=components_.begin(); iC!=components_.end();) {
+        if (frame == (*iC)->Frame()) {
+            delete (*iC);
+            components_.erase(iC);
+        }
+        else {
+            ++iC;
+        }
+    }
+}
+
+void AnimationManager::MoveComponentsBackOneFrame(int frame) {
+
+    for(auto component : components_) {
+        if (frame < component->Frame()) {
+            component->MoveBackOneFrame();
+        }
     }
 }

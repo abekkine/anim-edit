@@ -27,6 +27,7 @@ private:
     void MarkNextPoint();
     void AddNewComponent();
     void DeleteSelectedComponent();
+    void DeleteActiveFrame();
     void AddNewFrame();
     void LeftButtonDown();
     void LeftButtonUp();

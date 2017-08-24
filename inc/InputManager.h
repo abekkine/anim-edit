@@ -35,6 +35,7 @@ private:
     void GotoPrevFrame();
     void GotoFirstFrame();
     void GotoLastFrame();
+    void TogglePlayback();
 private:
     GLFWwindow* window_;
     int screen_width_;

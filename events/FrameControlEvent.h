@@ -10,7 +10,8 @@ public:
         NEXT_FRAME,
         PREV_FRAME,
         FIRST_FRAME,
-        LAST_FRAME
+        LAST_FRAME,
+        TOGGLE_PLAYBACK
     };
 public:
     explicit FrameControlEvent(FrameEventType type) : type_(type) {}

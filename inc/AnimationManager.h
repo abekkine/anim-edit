@@ -7,6 +7,7 @@
 #include "AnimComponent.h"
 #include "EventInterface.h"
 #include "Point.h"
+#include "Timer.h"
 
 class AnimationManager {
 public:
@@ -27,6 +28,7 @@ private:
     void RenderScene();
     void ToggleEditMode();
     void ToggleOnionSkin();
+    void TogglePlayback();
     void AddComponent();
     void DeleteComponent();
     void DeleteFrame();
@@ -47,6 +49,7 @@ private:
     int number_of_frames_;
     int active_frame_;
     EditType edit_mode_;
+    uint8_t playback_mode_;
     uint8_t onion_skin_mode_;
     int max_onion_frames_;
     double world_x_;
@@ -57,6 +60,7 @@ private:
     std::mutex world_pos_mutex_;
     std::mutex component_mutex_;
     std::vector<int> alpha_frames_;
+    Timer frameTimer_;
 };
 
 #endif  // ANIMATION_MANAGER_H_

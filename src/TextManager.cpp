@@ -8,6 +8,10 @@ TextManager::TextManager()
 
 TextManager::~TextManager()
 {
+	for (auto e : fonts_) {
+		delete e.second;
+	}
+	delete defaultFont_;
 }
 
 void TextManager::Init()

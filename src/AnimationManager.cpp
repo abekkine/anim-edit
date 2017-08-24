@@ -25,6 +25,11 @@ AnimationManager::AnimationManager()
 }
 
 AnimationManager::~AnimationManager() {
+
+    // Delete components
+    for (auto c : components_) {
+        delete c;
+    }
 }
 
 void AnimationManager::MarkPoint(Point* mp) {
@@ -240,6 +245,7 @@ void AnimationManager::AddComponent() {
 void AnimationManager::DeleteComponent() {
     std::cout << "Delete Component Event" << std::endl;
 
+    std::lock_guard<std::mutex> lock(component_mutex_);
     CursorUpdate();
     if (marked_point_ != 0) {
         if (marked_point_->selected_ == Point::MARK) {
@@ -247,7 +253,6 @@ void AnimationManager::DeleteComponent() {
             for (auto iC=components_.begin(); iC!=components_.end(); ++iC) {
                 if ((*iC)->id_ == marked_point_->parent_) {
 
-                    std::lock_guard<std::mutex> lock(component_mutex_);
                     delete (*iC);
                     components_.erase(iC);
                     break;

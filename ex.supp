@@ -1,0 +1,35 @@
+{
+    <glfwCreateWindow>
+    Memcheck:Leak
+    ...
+    fun:glfwCreateWindow
+}
+
+{
+    <glfwInit>
+    Memcheck:Leak
+    ...
+    fun:glfwInit
+}
+
+{
+    <pollEvents>
+    Memcheck:Leak
+    ...
+    fun:glfwPollEvents
+}
+
+{
+    <createHiddenCursor>
+    Memcheck:Leak
+    ...
+    fun:createHiddenCursor
+}
+
+{
+    <glxQueryVersion>
+    Memcheck:Leak
+    ...
+    fun:glXQueryVersion
+}
+

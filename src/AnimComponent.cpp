@@ -21,14 +21,14 @@ AnimComponent::AnimComponent(int frame)
 
     selected_ = false;
     SetColor(1.0, 1.0, 1.0);
-    p0_ = POINTS.AddPoint(id_, frame_number_, 0.0, 0.0);
-    p1_ = POINTS.AddPoint(id_, frame_number_, 0.0, 0.0);
+    p0_ = POINTS.Add(id_, frame_number_, 0.0, 0.0);
+    p1_ = POINTS.Add(id_, frame_number_, 0.0, 0.0);
 }
 
 AnimComponent::~AnimComponent() {
 
-    delete p0_;
-    delete p1_;
+    POINTS.Delete(p0_);
+    POINTS.Delete(p1_);
 }
 
 void AnimComponent::SetColor(float r, float g, float b) {

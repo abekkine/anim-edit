@@ -15,27 +15,19 @@ Point* PointManager::Add(int parent, int frame, double x, double y) {
 void PointManager::Delete(Point* p) {
 
 	p->id_ = -1;
-	// std::lock_guard<std::mutex> lock(point_mutex_);
-
-	// int id = p->id_;
-	// for (auto iP=point_list_.begin(); iP!=point_list_.end(); ++iP) {
-	// 	if (id == (*iP)->id_) {
-	// 		point_list_.erase(iP);
-	// 	}
-	// }
-	// delete p;
 }
 
 std::vector<Point*> PointManager::GetPointsNearOf(int frame, double x, double y, double vicinity) {
 
 	std::vector<Point*> points;
 
-	//std::lock_guard<std::mutex> lock(point_mutex_);
-
-	for (auto iP=point_list_.begin(); iP!=point_list_.end(); ++iP) {
+	for (auto iP=point_list_.begin(); iP!=point_list_.end();) {
 		if (-1 == (*iP)->id_) {
 			point_list_.erase(iP);
 			delete (*iP);
+		}
+		else {
+			++iP;
 		}
 	}
 

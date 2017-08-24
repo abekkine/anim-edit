@@ -11,13 +11,16 @@ class AnimComponent {
 public:
     explicit AnimComponent(int frame);
     ~AnimComponent();
+    int Frame() { return frame_number_; }
     void SetColor(float r, float g, float b);
     void SetP0(double x, double y);
     void SetP1(double x, double y);
+    void MoveBackOneFrame();
     void RenderLines();
     void RenderPoints();
     void Render(int frame);
     void RenderAlpha(std::vector<int>& alpha_frames);
+
 public:
     int id_;
 private:

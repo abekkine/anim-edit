@@ -50,7 +50,7 @@ void AnimComponent::SetP1(double x, double y) {
     p1_->x_ = x;
     p1_->y_ = y;
 }
- 
+
 void AnimComponent::RenderAlpha(std::vector<int>& alpha_frames) {
 
     int a_size = alpha_frames.size();
@@ -65,7 +65,7 @@ void AnimComponent::RenderAlpha(std::vector<int>& alpha_frames) {
         glLineWidth(1.0);
         RenderLines();
         color_[3] = a;
-    }    
+    }
 }
 
 void AnimComponent::Render(int frame) {
@@ -124,5 +124,12 @@ void AnimComponent::RenderPoints() {
         glBegin(GL_POINTS);
         glVertex3d(p1_->x_, p1_->y_, -1.0);
         glEnd();
-    }    
+    }
+}
+
+void AnimComponent::MoveBackOneFrame() {
+
+    p0_->frame_number_--;
+    p1_->frame_number_--;
+    frame_number_--;
 }

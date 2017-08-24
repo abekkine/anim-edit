@@ -17,6 +17,7 @@ AnimationManager::AnimationManager()
     active_frame_ = 0;
     number_of_frames_ = 2;
     edit_mode_ = NONE;
+    playback_mode_ = 0;
     onion_skin_mode_ = 0;
     max_onion_frames_ = 3;
     world_x_ = 0.0;
@@ -38,6 +39,8 @@ void AnimationManager::MarkPoint(Point* mp) {
 }
 
 void AnimationManager::Init() {
+
+    frameTimer_.Reset();
 
     EVENTS.Subscribe("frame",
         std::bind(&AnimationManager::frameControlEventHandler, this, std::placeholders::_1));
@@ -62,6 +65,17 @@ void AnimationManager::Render() {
 }
 
 void AnimationManager::RenderScene() {
+
+    if (playback_mode_) {
+
+        if (frameTimer_.GetElapsed() > 0.04) {
+            active_frame_++;
+            if (active_frame_ == number_of_frames_) {
+                active_frame_ = 0;
+            }
+            frameTimer_.Reset();
+        }
+    }
 
     for(auto component : components_) {
         component->Render(active_frame_);
@@ -97,7 +111,9 @@ void AnimationManager::frameControlEventHandler(EventInterface* event) {
             case FrameControlEvent::FIRST_FRAME:
                 active_frame_ = 0; break;
             case FrameControlEvent::LAST_FRAME:
-                active_frame_ = number_of_frames_-1;
+                active_frame_ = number_of_frames_-1; break;
+            case FrameControlEvent::TOGGLE_PLAYBACK:
+                TogglePlayback(); break;
             default:
                 break;
         }
@@ -334,5 +350,16 @@ void AnimationManager::MoveComponentsBackOneFrame(int frame) {
         if (frame < component->Frame()) {
             component->MoveBackOneFrame();
         }
+    }
+}
+
+void AnimationManager::TogglePlayback() {
+    if (number_of_frames_ < 2) return;
+    playback_mode_ ^= 1;
+    if (playback_mode_) {
+        std::cout << "Playback Mode : ON" << std::endl;
+    }
+    else {
+        std::cout << "Playback Mode : OFF" << std::endl;
     }
 }

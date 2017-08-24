@@ -132,6 +132,8 @@ void InputManager::ProcessKeys(int key)
             GotoFirstFrame(); break;
         case GLFW_KEY_DOWN:
             GotoLastFrame(); break;
+        case GLFW_KEY_SPACE:
+            TogglePlayback(); break;
         default:
             std::cout << "Key press : " << key << std::endl;
             break;
@@ -155,6 +157,11 @@ void InputManager::GotoFirstFrame() {
 
 void InputManager::GotoLastFrame() {
     FrameControlEvent* event = new FrameControlEvent(FrameControlEvent::LAST_FRAME);
+    EVENTS.Publish("frame", event);
+}
+
+void InputManager::TogglePlayback() {
+    FrameControlEvent* event = new FrameControlEvent(FrameControlEvent::TOGGLE_PLAYBACK);
     EVENTS.Publish("frame", event);
 }
 

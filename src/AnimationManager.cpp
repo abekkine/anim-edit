@@ -47,6 +47,8 @@ void AnimationManager::Init() {
 
     frameTimer_.Reset();
 
+    LoadAnimation();
+
     EVENTS.Subscribe("frame",
         std::bind(&AnimationManager::frameControlEventHandler, this, std::placeholders::_1));
 
@@ -223,8 +225,7 @@ void AnimationManager::ToggleEditMode() {
 }
 
 void AnimationManager::ClearSelections() {
-    // DEBUG
-    std::cout << "ClearSelections()" << std::endl;  
+
     for (auto point : point_selection_list_) {
         point->Select(Point::NONE);
     }
@@ -335,6 +336,9 @@ void AnimationManager::ToggleOnionSkin() {
 }
 
 void AnimationManager::CalculateAlphaFrames() {
+
+    if (onion_skin_mode_ == 0) return;
+
     // calculate alpha frames, based on current frame.
     if (max_onion_frames_ > number_of_frames_) {
         for (int i=0 ; i < (max_onion_frames_ - number_of_frames_); i++) {
@@ -394,6 +398,7 @@ void AnimationManager::SaveAnimation() {
 
     j_["active_frame"] = active_frame_;
     j_["number_of_frames"] = number_of_frames_;
+    j_["onion_skin"] = onion_skin_mode_;
     j_["components"] = {};
 
     for (auto c : components_) {
@@ -405,6 +410,31 @@ void AnimationManager::SaveAnimation() {
 }
 
 void AnimationManager::LoadAnimation() {
-    // TODO
-    std::cout << "Load Animation commanded" << std::endl;
+
+    json j_;
+    try {;
+        std::fstream loadFile("save.json", std::fstream::in);
+        loadFile >> j_;
+        loadFile.close();
+
+        // Read Number of frames.
+        number_of_frames_ = j_["number_of_frames"];
+        // Read Active Frame.
+        active_frame_ = j_["active_frame"];
+        // Onion Skin mode.
+        onion_skin_mode_ = j_["onion_skin"];
+        CalculateAlphaFrames();
+        // Read Components.
+        AnimComponent* c;
+        for (auto jC : j_["components"]) {
+            c = new AnimComponent((int)jC["frame"]);
+            c->SetColor(0.8, 0.8, 0.8);
+            c->SetP0(jC["p0"]["x"], jC["p0"]["y"]);
+            c->SetP1(jC["p1"]["x"], jC["p1"]["y"]);
+            components_.push_back(c);
+        }
+    }
+    catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
+    }
 }

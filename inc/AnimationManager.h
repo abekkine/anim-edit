@@ -39,11 +39,14 @@ private:
     void CalculateAlphaFrames();
     void DeleteComponentsOf(int frame);
     void MoveComponentsBackOneFrame(int frame);
+    void LoadAnimation();
+    void SaveAnimation();
 private:
     void frameControlEventHandler(EventInterface* event);
     void worldPosEventHandler(EventInterface* event);
     void editEventHandler(EventInterface* event);
     void buttonEventHandler(EventInterface* event);
+    void fileEventHandler(EventInterface* event);
 private:
     const bool test_flag_;
     int number_of_frames_;

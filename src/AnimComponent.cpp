@@ -133,3 +133,14 @@ void AnimComponent::MoveBackOneFrame() {
     p1_->frame_number_--;
     frame_number_--;
 }
+
+json& AnimComponent::DumpJSON() {
+
+    j_["frame"] = frame_number_;
+    j_["p0"]["x"] = p0_->x_;
+    j_["p0"]["y"] = p0_->y_;
+    j_["p1"]["x"] = p1_->x_;
+    j_["p1"]["y"] = p1_->y_;
+
+    return j_;
+}

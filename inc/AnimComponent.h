@@ -5,6 +5,9 @@
 
 #include <vector>
 
+#include "json.hpp"
+using json = nlohmann::json;
+
 #include "Point.h"
 
 class AnimComponent {
@@ -20,6 +23,7 @@ public:
     void RenderPoints();
     void Render(int frame);
     void RenderAlpha(std::vector<int>& alpha_frames);
+    json& DumpJSON();
 
 public:
     int id_;
@@ -28,6 +32,7 @@ private:
     uint8_t selected_;
     int frame_number_;
     float color_[4];
+    json j_;
 
     Point* p0_;
     Point* p1_;

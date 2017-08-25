@@ -8,6 +8,7 @@
 #include "FrameControlEvent.h"
 #include "WorldPositionEvent.h"
 #include "EditEvent.h"
+#include "FileEvent.h"
 #include "MouseButtonEvent.h"
 
 InputManager::InputManager()
@@ -134,6 +135,10 @@ void InputManager::ProcessKeys(int key)
             GotoLastFrame(); break;
         case GLFW_KEY_SPACE:
             TogglePlayback(); break;
+        case GLFW_KEY_S:
+            SaveToDisk(); break;
+        case GLFW_KEY_L:
+            LoadFromDisk(); break;
         default:
             std::cout << "Key press : " << key << std::endl;
             break;
@@ -213,4 +218,14 @@ void InputManager::DeleteSelectedComponent() {
 void InputManager::DeleteActiveFrame() {
     EditEvent* event = new EditEvent(EditEvent::DELETE_FRAME);
     EVENTS.Publish("edit", event);
+}
+
+void InputManager::SaveToDisk() {
+    FileEvent* event = new FileEvent(FileEvent::SAVE);
+    EVENTS.Publish("file", event);
+}
+
+void InputManager::LoadFromDisk() {
+    FileEvent* event = new FileEvent(FileEvent::LOAD);
+    EVENTS.Publish("file", event);
 }

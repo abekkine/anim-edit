@@ -10,32 +10,29 @@ using json = nlohmann::json;
 
 #include "Point.h"
 
+#include <memory>
+
 class AnimComponent {
 public:
-    explicit AnimComponent(int frame);
+    explicit AnimComponent(int id);
     ~AnimComponent();
-    int Frame() { return frame_number_; }
     void SetColor(float r, float g, float b);
     void SetP0(double x, double y);
     void SetP1(double x, double y);
-    void MoveBackOneFrame();
     void RenderLines();
     void RenderPoints();
-    void Render(int frame);
-    void RenderAlpha(std::vector<int>& alpha_frames);
+    void Render();
+    void RenderAlpha(int alpha_index, int a_size);
+    std::vector<std::shared_ptr<Point>> PointsInVicinity(double x, double y, double vicinity);
     json& DumpJSON();
-
 public:
     int id_;
 private:
-    static int num_;
+    std::shared_ptr<Point> p0_;
+    std::shared_ptr<Point> p1_;
     uint8_t selected_;
-    int frame_number_;
     float color_[4];
     json j_;
-
-    Point* p0_;
-    Point* p1_;
 };
 
 #endif  // ANIM_COMPONENT_H_

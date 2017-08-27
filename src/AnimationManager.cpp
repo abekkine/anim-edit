@@ -27,20 +27,25 @@ AnimationManager::AnimationManager()
     max_onion_frames_ = 3;
     world_x_ = 0.0;
     world_y_ = 0.0;
-    MarkPoint((Point*)0);
+    id_counter_ = 0;
+    MarkPoint(std::shared_ptr<Point>(0));
 }
 
 AnimationManager::~AnimationManager() {
 
     // Delete components
-    for (auto c : components_) {
-        delete c;
+    for (auto f : frames_) {
+        f.second.clear();
     }
+    frames_.clear();
 }
 
-void AnimationManager::MarkPoint(Point* mp) {
+void AnimationManager::MarkPoint(std::shared_ptr<Point> mp) {
 
     marked_point_ = mp;
+    if (marked_point_ != nullptr) {
+        std::cout << "Marked(" << marked_point_->id_ << ")" << std::endl;
+    }
 }
 
 void AnimationManager::Init() {
@@ -87,10 +92,19 @@ void AnimationManager::RenderScene() {
         }
     }
 
-    for(auto component : components_) {
-        component->Render(active_frame_);
-        if (onion_skin_mode_) {
-            component->RenderAlpha(alpha_frames_);
+    {
+        std::lock_guard<std::mutex> lock(component_mutex_);
+        for (auto component : frames_[active_frame_]) {
+            component->Render();
+        }
+    }
+
+    if (onion_skin_mode_) {
+        int alpha_len = alpha_frames_.size();
+        for (int i=0; i<alpha_len; i++) {
+            for (auto component : frames_[alpha_frames_[i]]) {
+                component->RenderAlpha(i, alpha_len);
+            }
         }
     }
 }
@@ -204,7 +218,7 @@ void AnimationManager::buttonEventHandler(EventInterface* event) {
             case MouseButtonEvent::LEFT_UP:
                 std::cout << "Left Button Up" << std::endl;
                 edit_mode_ = SELECT;
-                MarkPoint((Point*)0);
+                MarkPoint(nullptr);
                 break;
             default:
                 break;
@@ -236,7 +250,7 @@ void AnimationManager::UpdatePointSelection() {
 
     if (point_selection_list_.empty()) return;
 
-    MarkPoint((Point*)0);
+    MarkPoint(nullptr);
     bool mark_found = false;
     for (auto iPoint = point_selection_list_.begin(); iPoint != point_selection_list_.end(); ++iPoint)
     {
@@ -263,7 +277,7 @@ void AnimationManager::UpdatePointSelection() {
 void AnimationManager::CursorUpdate() {
 
     if (edit_mode_ == SELECT) {
-        point_selection_list_ = POINTS.GetPointsNearOf(active_frame_, world_x_, world_y_);
+        point_selection_list_ = GetPointsNearOf(world_x_, world_y_);
     } else if (edit_mode_ == MOVE) {
         if (marked_point_ != 0) {
             std::lock_guard<std::mutex> lock(world_pos_mutex_);
@@ -273,36 +287,57 @@ void AnimationManager::CursorUpdate() {
     }
 }
 
+std::vector<std::shared_ptr<Point>> AnimationManager::GetPointsNearOf(double x, double y) {
+
+    std::vector<std::shared_ptr<Point>> p;
+    for (auto c : frames_[active_frame_]) {
+        auto pc = c->PointsInVicinity(x, y, 25.0);
+        p.insert(p.end(), pc.begin(), pc.end());
+    }
+    return p;
+}
+
 void AnimationManager::AddComponent() {
     std::cout << "Add Component Event" << std::endl;
 
-    AnimComponent* c = new AnimComponent(active_frame_);
-    c->SetColor(0.8, 0.8, 0.8);
-    c->SetP0(world_x_, world_y_);
-    c->SetP1(world_x_+10.0, world_y_);
+    id_counter_++;
 
-    components_.push_back(c);
+    for (int i=0; i<number_of_frames_; i++) {
+        auto c = std::make_shared<AnimComponent>(id_counter_);
+        c->SetColor(0.8, 0.8, 0.8);
+        c->SetP0(world_x_, world_y_);
+        c->SetP1(world_x_+10.0, world_y_);
+
+        frames_[i].push_back(c);
+    }
 }
 
 void AnimationManager::DeleteComponent() {
     std::cout << "Delete Component Event" << std::endl;
 
-    std::lock_guard<std::mutex> lock(component_mutex_);
     CursorUpdate();
     if (marked_point_ != 0) {
         if (marked_point_->selected_ == Point::MARK) {
-            std::cout << "Component to be deleted " << marked_point_->parent_ << std::endl;
-            for (auto iC=components_.begin(); iC!=components_.end();) {
-                if ((*iC)->id_ == marked_point_->parent_) {
+            point_selection_list_.clear();
+            int id_to_delete = marked_point_->parent_;
+            marked_point_.reset();
+            std::cout << "Component to be deleted : " << id_to_delete << std::endl;
 
-                    delete (*iC);
-                    components_.erase(iC);
-                    break;
-                }
-                else {
-                    ++iC;
+            auto& clist = frames_[active_frame_];
+            {
+                std::lock_guard<std::mutex> lock(component_mutex_);
+                for (auto iC=clist.begin(); iC!=clist.end();) {
+                    if ((*iC)->id_ == id_to_delete) {
+                        (*iC).reset();
+                        clist.erase(iC);
+                        break;
+                    }
+                    else {
+                        ++iC;
+                    }
                 }
             }
+
         } else {
             marked_point_ = 0;
         }
@@ -311,16 +346,20 @@ void AnimationManager::DeleteComponent() {
 
 void AnimationManager::DeleteFrame() {
     if (number_of_frames_ > 1) {
-        std::cout << "Delete frame(" << active_frame_ << ")" << std::endl;
-        DeleteComponentsOf(active_frame_);
-        MoveComponentsBackOneFrame(active_frame_);
+        frames_[active_frame_].clear();
+        frames_.erase(active_frame_);
         number_of_frames_--;
     }
 }
 
 void AnimationManager::AddFrame() {
 
+    std::cout << "AddFrame()" << std::endl;
+
+    std::vector<std::shared_ptr<AnimComponent>> clist;
+    frames_[number_of_frames_] = clist;
     number_of_frames_++;
+
 }
 
 void AnimationManager::ToggleOnionSkin() {
@@ -357,28 +396,6 @@ void AnimationManager::CalculateAlphaFrames() {
     }
 }
 
-void AnimationManager::DeleteComponentsOf(int frame) {
-
-    for(auto iC=components_.begin(); iC!=components_.end();) {
-        if (frame == (*iC)->Frame()) {
-            delete (*iC);
-            components_.erase(iC);
-        }
-        else {
-            ++iC;
-        }
-    }
-}
-
-void AnimationManager::MoveComponentsBackOneFrame(int frame) {
-
-    for(auto component : components_) {
-        if (frame < component->Frame()) {
-            component->MoveBackOneFrame();
-        }
-    }
-}
-
 void AnimationManager::TogglePlayback() {
     if (number_of_frames_ < 2) return;
     playback_mode_ ^= 1;
@@ -401,9 +418,10 @@ void AnimationManager::SaveAnimation() {
     j_["onion_skin"] = onion_skin_mode_;
     j_["components"] = {};
 
-    for (auto c : components_) {
-        j_["components"].push_back(c->DumpJSON());
-    }
+    // TODO : rewrite save function.
+    // for (auto c : components_) {
+    //     j_["components"].push_back(c->DumpJSON());
+    // }
 
     saveFile << j_.dump(4);
     saveFile.close();
@@ -417,22 +435,23 @@ void AnimationManager::LoadAnimation() {
         loadFile >> j_;
         loadFile.close();
 
-        // Read Number of frames.
-        number_of_frames_ = j_["number_of_frames"];
-        // Read Active Frame.
-        active_frame_ = j_["active_frame"];
-        // Onion Skin mode.
-        onion_skin_mode_ = j_["onion_skin"];
-        CalculateAlphaFrames();
-        // Read Components.
-        AnimComponent* c;
-        for (auto jC : j_["components"]) {
-            c = new AnimComponent((int)jC["frame"]);
-            c->SetColor(0.8, 0.8, 0.8);
-            c->SetP0(jC["p0"]["x"], jC["p0"]["y"]);
-            c->SetP1(jC["p1"]["x"], jC["p1"]["y"]);
-            components_.push_back(c);
-        }
+// TODO : rewrite load function.
+//        // Read Number of frames.
+//        number_of_frames_ = j_["number_of_frames"];
+//        // Read Active Frame.
+//        active_frame_ = j_["active_frame"];
+//        // Onion Skin mode.
+//        onion_skin_mode_ = j_["onion_skin"];
+//        CalculateAlphaFrames();
+//        // Read Components.
+//        AnimComponent* c;
+//        for (auto jC : j_["components"]) {
+//            c = new AnimComponent((int)jC["frame"]);
+//            c->SetColor(0.8, 0.8, 0.8);
+//            c->SetP0(jC["p0"]["x"], jC["p0"]["y"]);
+//            c->SetP1(jC["p1"]["x"], jC["p1"]["y"]);
+//            components_.push_back(c);
+//        }
     }
     catch (std::exception& e) {
         std::cerr << e.what() << std::endl;

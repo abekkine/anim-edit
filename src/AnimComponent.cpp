@@ -11,24 +11,21 @@
 #define MAX_ONION_ALPHA 0.5
 #define MIN_ONION_ALPHA 0.1
 
-int AnimComponent::num_ = 0;
-
-AnimComponent::AnimComponent(int frame)
-: frame_number_(frame) {
-
-    num_++;
-    id_=num_;
+AnimComponent::AnimComponent(int id) : id_(id) {
 
     selected_ = false;
     SetColor(1.0, 1.0, 1.0);
-    p0_ = POINTS.Add(id_, frame_number_, 0.0, 0.0);
-    p1_ = POINTS.Add(id_, frame_number_, 0.0, 0.0);
+    p0_ = POINTS.Add(id_, 0.0, 0.0);
+    p1_ = POINTS.Add(id_, 0.0, 0.0);
 }
 
 AnimComponent::~AnimComponent() {
 
-    POINTS.Delete(p0_);
-    POINTS.Delete(p1_);
+    POINTS.Delete(p0_->id_);
+    POINTS.Delete(p1_->id_);
+    p0_.reset();
+    p1_.reset();
+    std::cout << "~AnimComponent(" << id_ << ")" << std::endl;
 }
 
 void AnimComponent::SetColor(float r, float g, float b) {
@@ -51,26 +48,19 @@ void AnimComponent::SetP1(double x, double y) {
     p1_->y_ = y;
 }
 
-void AnimComponent::RenderAlpha(std::vector<int>& alpha_frames) {
+void AnimComponent::RenderAlpha(int alpha_index, int alpha_size) {
 
-    int a_size = alpha_frames.size();
-    auto component_frame = std::find(alpha_frames.begin(), alpha_frames.end(), frame_number_);
-    if (component_frame != alpha_frames.end()) {
-        // found
-        int alpha_index = component_frame - alpha_frames.begin();
-        float alpha = (MAX_ONION_ALPHA - MIN_ONION_ALPHA) * (a_size - alpha_index) / (float)a_size;
+    float alpha = (MAX_ONION_ALPHA - MIN_ONION_ALPHA) * (alpha_size - alpha_index) / (float)alpha_size;
+    float a = color_[3];
 
-        float a = color_[3];
-        color_[3] = MIN_ONION_ALPHA + alpha;
-        glLineWidth(1.0);
-        RenderLines();
-        color_[3] = a;
-    }
+    color_[3] = MIN_ONION_ALPHA + alpha;
+    glLineWidth(1.0);
+    RenderLines();
+
+    color_[3] = a;
 }
 
-void AnimComponent::Render(int frame) {
-
-    if (frame != frame_number_) return;
+void AnimComponent::Render() {
 
     if (p0_->selected_ == Point::MARK ||
         p1_->selected_ == Point::MARK) {
@@ -127,16 +117,37 @@ void AnimComponent::RenderPoints() {
     }
 }
 
-void AnimComponent::MoveBackOneFrame() {
+std::vector<std::shared_ptr<Point>> AnimComponent::PointsInVicinity(double x, double y, double vicinity) {
 
-    p0_->frame_number_--;
-    p1_->frame_number_--;
-    frame_number_--;
+    std::vector<std::shared_ptr<Point>> plist;
+    double dx, dy;
+    dx = x - p0_->x_;
+    dy = y - p0_->y_;
+    if ((dx * dx + dy * dy) < vicinity) {
+        if (p0_->selected_ == Point::NONE) {
+            p0_->selected_ = Point::SELECT;
+        }
+        plist.push_back(p0_);
+    }
+    else {
+        p0_->selected_ = Point::NONE;
+    }
+    dx = x - p1_->x_;
+    dy = y - p1_->y_;
+    if ((dx * dx + dy * dy) < vicinity) {
+        if (p1_->selected_ == Point::NONE) {
+            p1_->selected_ = Point::SELECT;
+        }
+        plist.push_back(p1_);
+    }
+    else {
+        p1_->selected_ = Point::NONE;
+    }
+    return plist;
 }
 
 json& AnimComponent::DumpJSON() {
 
-    j_["frame"] = frame_number_;
     j_["p0"]["x"] = p0_->x_;
     j_["p0"]["y"] = p0_->y_;
     j_["p1"]["x"] = p1_->x_;

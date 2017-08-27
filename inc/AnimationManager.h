@@ -2,6 +2,8 @@
 #define ANIMATION_MANAGER_H_
 
 #include <vector>
+#include <memory>
+#include <unordered_map>
 #include <mutex>
 
 #include "AnimComponent.h"
@@ -20,7 +22,7 @@ public:
 public:
     AnimationManager();
     ~AnimationManager();
-    void MarkPoint(Point* mp);
+    void MarkPoint(std::shared_ptr<Point> mp);
     void Init();
     void Render();
 private:
@@ -41,6 +43,7 @@ private:
     void MoveComponentsBackOneFrame(int frame);
     void LoadAnimation();
     void SaveAnimation();
+    std::vector<std::shared_ptr<Point>> GetPointsNearOf(double x, double y);
 private:
     void frameControlEventHandler(EventInterface* event);
     void worldPosEventHandler(EventInterface* event);
@@ -49,6 +52,7 @@ private:
     void fileEventHandler(EventInterface* event);
 private:
     const bool test_flag_;
+    int id_counter_;
     int number_of_frames_;
     int active_frame_;
     EditType edit_mode_;
@@ -57,9 +61,9 @@ private:
     int max_onion_frames_;
     double world_x_;
     double world_y_;
-    std::vector<AnimComponent*> components_;
-    std::vector<Point*> point_selection_list_;
-    Point* marked_point_;
+    std::unordered_map<int, std::vector<std::shared_ptr<AnimComponent>>> frames_;
+    std::vector<std::shared_ptr<Point>> point_selection_list_;
+    std::shared_ptr<Point> marked_point_;
     std::mutex world_pos_mutex_;
     std::mutex component_mutex_;
     std::vector<int> alpha_frames_;

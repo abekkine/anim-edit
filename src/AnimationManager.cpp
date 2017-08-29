@@ -35,7 +35,7 @@ AnimationManager::~AnimationManager() {
 
     // Delete components
     for (auto f : frames_) {
-        f.second.clear();
+        f.clear();
     }
     frames_.clear();
 }
@@ -84,9 +84,11 @@ void AnimationManager::RenderScene() {
     if (playback_mode_) {
 
         if (frameTimer_.GetElapsed() > 0.04) {
-            active_frame_++;
             if (active_frame_ == number_of_frames_) {
-                active_frame_ = 0;
+                SetActiveFrame(0);
+            }
+            else {
+                SetActiveFrame(active_frame_ + 1);
             }
             frameTimer_.Reset();
         }
@@ -124,18 +126,25 @@ void AnimationManager::frameControlEventHandler(EventInterface* event) {
     if (e != 0) {
         switch(e->GetType()) {
             case FrameControlEvent::NEXT_FRAME:
-                if (active_frame_ < (number_of_frames_-1))
-                    active_frame_++;
+                if (active_frame_ < (number_of_frames_-1)) {
+                    SetActiveFrame(active_frame_ + 1);
+                }
+                else {
+                    SetActiveFrame(0);
+                }
                 break;
             case FrameControlEvent::PREV_FRAME:
                 if (active_frame_ > 0) {
-                    active_frame_--;
+                    SetActiveFrame(active_frame_ - 1);
+                }
+                else {
+                    SetActiveFrame(number_of_frames_ - 1);
                 }
                 break;
             case FrameControlEvent::FIRST_FRAME:
-                active_frame_ = 0; break;
+                SetActiveFrame(0); break;
             case FrameControlEvent::LAST_FRAME:
-                active_frame_ = number_of_frames_-1; break;
+                SetActiveFrame(number_of_frames_-1); break;
             case FrameControlEvent::TOGGLE_PLAYBACK:
                 TogglePlayback(); break;
             default:
@@ -143,11 +152,15 @@ void AnimationManager::frameControlEventHandler(EventInterface* event) {
         }
 
         CalculateAlphaFrames();
-        {
-            UiDisplayEvent* event = new UiDisplayEvent(
-                "frame", 10, 10, std::to_string(active_frame_));
-            EVENTS.Publish("ui", event);
-        }
+    }
+}
+
+void AnimationManager::SetActiveFrame(int frame) {
+    active_frame_ = frame;
+    {
+        UiDisplayEvent* event = new UiDisplayEvent(
+            "frame", 10, 10, std::to_string(active_frame_));
+        EVENTS.Publish("ui", event);
     }
 }
 
@@ -320,7 +333,7 @@ void AnimationManager::DeleteAll() {
     point_selection_list_.clear();
 
         for (auto f : frames_) {
-        f.second.clear();
+        f.clear();
     }
     frames_.clear();
 }
@@ -360,8 +373,11 @@ void AnimationManager::DeleteComponent() {
 void AnimationManager::DeleteFrame() {
     if (number_of_frames_ > 1) {
         frames_[active_frame_].clear();
-        frames_.erase(active_frame_);
+        frames_.erase(frames_.begin() + active_frame_);
         number_of_frames_--;
+        if (active_frame_ == number_of_frames_) {
+            SetActiveFrame(active_frame_-1);
+        }
     }
 }
 
@@ -370,7 +386,7 @@ void AnimationManager::AddFrame() {
     std::cout << "AddFrame()" << std::endl;
 
     std::vector<std::shared_ptr<AnimComponent>> clist;
-    frames_[number_of_frames_] = clist;
+    frames_.push_back(clist);
     number_of_frames_++;
 
 }
@@ -433,7 +449,7 @@ void AnimationManager::SaveAnimation() {
 
     for (auto f : frames_) {
         json j_comp;
-        for (auto c : f.second) {
+        for (auto c : f) {
             std::string id = std::to_string(c->id_);
             j_comp[id] = c->DumpJSON();
         }
@@ -457,7 +473,7 @@ void AnimationManager::LoadAnimation() {
         // Read Number of frames.
         number_of_frames_ = j_["number_of_frames"];
         // Read Active Frame.
-        active_frame_ = j_["active_frame"];
+        SetActiveFrame(j_["active_frame"]);
         // Onion Skin mode.
         onion_skin_mode_ = j_["onion_skin"];
         CalculateAlphaFrames();
@@ -466,6 +482,7 @@ void AnimationManager::LoadAnimation() {
         std::cout << "f_size(" << f_size << ")" << std::endl;
         std::cout << "number_of_frames(" << number_of_frames_ << ")" << std::endl;
         for (int f=0; f<f_size; f++) {
+            std::vector<std::shared_ptr<AnimComponent>> clist;
             for (json::iterator j=j_["frames"][f].begin(); j!=j_["frames"][f].end(); ++j) {
                 int c_id = std::stoi(j.key());
                 json c_json = j.value();
@@ -474,8 +491,9 @@ void AnimationManager::LoadAnimation() {
                 c->SetP0(c_json["p0"]["x"], c_json["p0"]["y"]);
                 c->SetP1(c_json["p1"]["x"], c_json["p1"]["y"]);
 
-                frames_[f].push_back(c);
+                clist.push_back(c);
             }
+            frames_.push_back(clist);
         }
     }
     catch (std::exception& e) {

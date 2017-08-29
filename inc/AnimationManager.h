@@ -34,6 +34,7 @@ private:
     void AddComponent();
     void DeleteComponent();
     void DeleteFrame();
+    void SetActiveFrame(int frame);
     void DeleteAll();
     void AddFrame();
     void CursorUpdate();
@@ -62,7 +63,7 @@ private:
     int max_onion_frames_;
     double world_x_;
     double world_y_;
-    std::unordered_map<int, std::vector<std::shared_ptr<AnimComponent>>> frames_;
+    std::vector<std::vector<std::shared_ptr<AnimComponent>>> frames_;
     std::vector<std::shared_ptr<Point>> point_selection_list_;
     std::shared_ptr<Point> marked_point_;
     std::mutex world_pos_mutex_;

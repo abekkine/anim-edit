@@ -1,6 +1,10 @@
+new.supp
 *.json
 *.o
 .*sw*
+.~*
+*.log
+core*
 Version.h
 animEdit
 

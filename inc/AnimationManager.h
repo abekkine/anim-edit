@@ -34,6 +34,7 @@ private:
     void AddComponent();
     void DeleteComponent();
     void DeleteFrame();
+    void DeleteAll();
     void AddFrame();
     void CursorUpdate();
     void UpdatePointSelection();

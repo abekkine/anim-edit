@@ -312,6 +312,19 @@ void AnimationManager::AddComponent() {
     }
 }
 
+void AnimationManager::DeleteAll() {
+    if (marked_point_ != nullptr) {
+        marked_point_.reset();
+    }
+
+    point_selection_list_.clear();
+
+        for (auto f : frames_) {
+        f.second.clear();
+    }
+    frames_.clear();
+}
+
 void AnimationManager::DeleteComponent() {
     std::cout << "Delete Component Event" << std::endl;
 
@@ -416,12 +429,16 @@ void AnimationManager::SaveAnimation() {
     j_["active_frame"] = active_frame_;
     j_["number_of_frames"] = number_of_frames_;
     j_["onion_skin"] = onion_skin_mode_;
-    j_["components"] = {};
+    j_["frames"] = {};
 
-    // TODO : rewrite save function.
-    // for (auto c : components_) {
-    //     j_["components"].push_back(c->DumpJSON());
-    // }
+    for (auto f : frames_) {
+        json j_comp;
+        for (auto c : f.second) {
+            std::string id = std::to_string(c->id_);
+            j_comp[id] = c->DumpJSON();
+        }
+        j_["frames"].push_back(j_comp);
+    }
 
     saveFile << j_.dump(4);
     saveFile.close();
@@ -429,29 +446,37 @@ void AnimationManager::SaveAnimation() {
 
 void AnimationManager::LoadAnimation() {
 
+    DeleteAll();
+
     json j_;
     try {;
         std::fstream loadFile("save.json", std::fstream::in);
         loadFile >> j_;
         loadFile.close();
 
-// TODO : rewrite load function.
-//        // Read Number of frames.
-//        number_of_frames_ = j_["number_of_frames"];
-//        // Read Active Frame.
-//        active_frame_ = j_["active_frame"];
-//        // Onion Skin mode.
-//        onion_skin_mode_ = j_["onion_skin"];
-//        CalculateAlphaFrames();
-//        // Read Components.
-//        AnimComponent* c;
-//        for (auto jC : j_["components"]) {
-//            c = new AnimComponent((int)jC["frame"]);
-//            c->SetColor(0.8, 0.8, 0.8);
-//            c->SetP0(jC["p0"]["x"], jC["p0"]["y"]);
-//            c->SetP1(jC["p1"]["x"], jC["p1"]["y"]);
-//            components_.push_back(c);
-//        }
+        // Read Number of frames.
+        number_of_frames_ = j_["number_of_frames"];
+        // Read Active Frame.
+        active_frame_ = j_["active_frame"];
+        // Onion Skin mode.
+        onion_skin_mode_ = j_["onion_skin"];
+        CalculateAlphaFrames();
+        // Read Frames and Components.
+        int f_size = j_["frames"].size();
+        std::cout << "f_size(" << f_size << ")" << std::endl;
+        std::cout << "number_of_frames(" << number_of_frames_ << ")" << std::endl;
+        for (int f=0; f<f_size; f++) {
+            for (json::iterator j=j_["frames"][f].begin(); j!=j_["frames"][f].end(); ++j) {
+                int c_id = std::stoi(j.key());
+                json c_json = j.value();
+                auto c = std::make_shared<AnimComponent>(c_id);
+                c->SetColor(0.8, 0.8, 0.8);
+                c->SetP0(c_json["p0"]["x"], c_json["p0"]["y"]);
+                c->SetP1(c_json["p1"]["x"], c_json["p1"]["y"]);
+
+                frames_[f].push_back(c);
+            }
+        }
     }
     catch (std::exception& e) {
         std::cerr << e.what() << std::endl;

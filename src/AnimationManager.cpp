@@ -20,7 +20,8 @@ using json = nlohmann::json;
 AnimationManager::AnimationManager()
 : test_flag_(false) {
     active_frame_ = 0;
-    number_of_frames_ = 1;
+    std::vector<std::shared_ptr<AnimComponent>> clist;
+    frames_.push_back(clist);
     edit_mode_ = NONE;
     playback_mode_ = 0;
     onion_skin_mode_ = 0;
@@ -84,7 +85,7 @@ void AnimationManager::RenderScene() {
     if (playback_mode_) {
 
         if (frameTimer_.GetElapsed() > 0.04) {
-            if (active_frame_ == number_of_frames_) {
+            if (active_frame_ == frames_.size()) {
                 SetActiveFrame(0);
             }
             else {
@@ -126,7 +127,7 @@ void AnimationManager::frameControlEventHandler(EventInterface* event) {
     if (e != 0) {
         switch(e->GetType()) {
             case FrameControlEvent::NEXT_FRAME:
-                if (active_frame_ < (number_of_frames_-1)) {
+                if (active_frame_ < (frames_.size() - 1)) {
                     SetActiveFrame(active_frame_ + 1);
                 }
                 else {
@@ -138,13 +139,13 @@ void AnimationManager::frameControlEventHandler(EventInterface* event) {
                     SetActiveFrame(active_frame_ - 1);
                 }
                 else {
-                    SetActiveFrame(number_of_frames_ - 1);
+                    SetActiveFrame(frames_.size() - 1);
                 }
                 break;
             case FrameControlEvent::FIRST_FRAME:
                 SetActiveFrame(0); break;
             case FrameControlEvent::LAST_FRAME:
-                SetActiveFrame(number_of_frames_-1); break;
+                SetActiveFrame(frames_.size() - 1); break;
             case FrameControlEvent::TOGGLE_PLAYBACK:
                 TogglePlayback(); break;
             default:
@@ -315,7 +316,7 @@ void AnimationManager::AddComponent() {
 
     id_counter_++;
 
-    for (int i=0; i<number_of_frames_; i++) {
+    for (unsigned int i=0; i<frames_.size(); i++) {
         auto c = std::make_shared<AnimComponent>(id_counter_);
         c->SetColor(0.8, 0.8, 0.8);
         c->SetP0(world_x_, world_y_);
@@ -371,11 +372,10 @@ void AnimationManager::DeleteComponent() {
 }
 
 void AnimationManager::DeleteFrame() {
-    if (number_of_frames_ > 1) {
+    if (frames_.size() > 1) {
         frames_[active_frame_].clear();
         frames_.erase(frames_.begin() + active_frame_);
-        number_of_frames_--;
-        if (active_frame_ == number_of_frames_) {
+        if (active_frame_ == frames_.size()) {
             SetActiveFrame(active_frame_-1);
         }
     }
@@ -387,8 +387,6 @@ void AnimationManager::AddFrame() {
 
     std::vector<std::shared_ptr<AnimComponent>> clist;
     frames_.push_back(clist);
-    number_of_frames_++;
-
 }
 
 void AnimationManager::ToggleOnionSkin() {
@@ -408,25 +406,23 @@ void AnimationManager::CalculateAlphaFrames() {
     if (onion_skin_mode_ == 0) return;
 
     // calculate alpha frames, based on current frame.
-    if (max_onion_frames_ > number_of_frames_) {
-        for (int i=0 ; i < (max_onion_frames_ - number_of_frames_); i++) {
-            AddFrame();
-        }
+    if (max_onion_frames_ > frames_.size()) {
+        max_onion_frames_ = frames_.size();
     }
 
     alpha_frames_.clear();
     int alpha_frame;
-    for (int i=1; i<=max_onion_frames_; i++) {
+    for (unsigned int i=1; i<=max_onion_frames_; i++) {
         alpha_frame = active_frame_ - i;
         if (alpha_frame < 0) {
-            alpha_frame += number_of_frames_;
+            alpha_frame += frames_.size();
         }
         alpha_frames_.push_back(alpha_frame);
     }
 }
 
 void AnimationManager::TogglePlayback() {
-    if (number_of_frames_ < 2) return;
+    if (frames_.size() < 2) return;
     playback_mode_ ^= 1;
     if (playback_mode_) {
         std::cout << "Playback Mode : ON" << std::endl;
@@ -443,7 +439,7 @@ void AnimationManager::SaveAnimation() {
     json j_;
 
     j_["active_frame"] = active_frame_;
-    j_["number_of_frames"] = number_of_frames_;
+    j_["number_of_frames"] = frames_.size();
     j_["onion_skin"] = onion_skin_mode_;
     j_["frames"] = {};
 
@@ -470,8 +466,6 @@ void AnimationManager::LoadAnimation() {
         loadFile >> j_;
         loadFile.close();
 
-        // Read Number of frames.
-        number_of_frames_ = j_["number_of_frames"];
         // Read Active Frame.
         SetActiveFrame(j_["active_frame"]);
         // Onion Skin mode.
@@ -479,8 +473,6 @@ void AnimationManager::LoadAnimation() {
         CalculateAlphaFrames();
         // Read Frames and Components.
         int f_size = j_["frames"].size();
-        std::cout << "f_size(" << f_size << ")" << std::endl;
-        std::cout << "number_of_frames(" << number_of_frames_ << ")" << std::endl;
         for (int f=0; f<f_size; f++) {
             std::vector<std::shared_ptr<AnimComponent>> clist;
             for (json::iterator j=j_["frames"][f].begin(); j!=j_["frames"][f].end(); ++j) {

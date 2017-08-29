@@ -55,12 +55,11 @@ private:
 private:
     const bool test_flag_;
     int id_counter_;
-    int number_of_frames_;
-    int active_frame_;
+    unsigned int active_frame_;
     EditType edit_mode_;
     uint8_t playback_mode_;
     uint8_t onion_skin_mode_;
-    int max_onion_frames_;
+    unsigned int max_onion_frames_;
     double world_x_;
     double world_y_;
     std::vector<std::vector<std::shared_ptr<AnimComponent>>> frames_;

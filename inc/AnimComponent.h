@@ -27,9 +27,9 @@ public:
     json& DumpJSON();
 public:
     int id_;
-private:
     std::shared_ptr<Point> p0_;
     std::shared_ptr<Point> p1_;
+private:
     uint8_t selected_;
     float color_[4];
     json j_;

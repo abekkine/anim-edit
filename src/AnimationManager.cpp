@@ -386,7 +386,18 @@ void AnimationManager::AddFrame() {
     std::cout << "AddFrame()" << std::endl;
 
     std::vector<std::shared_ptr<AnimComponent>> clist;
-    frames_.push_back(clist);
+
+    // Copy components in active frame into new frame.
+    for (auto c : frames_[active_frame_]) {
+        auto newc = std::make_shared<AnimComponent>(c->id_);
+        newc->SetColor(0.8, 0.8, 0.8);
+        newc->SetP0(c->p0_->x_, c->p0_->y_);
+        newc->SetP1(c->p1_->x_, c->p1_->y_);
+        clist.push_back(newc);
+    }
+
+    // Add new frame after active frame,
+    frames_.insert(frames_.begin() + active_frame_, clist);
 }
 
 void AnimationManager::ToggleOnionSkin() {

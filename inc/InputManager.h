@@ -23,6 +23,7 @@ private:
     void ProcessKeys(int key);
     void UpdateWorldPosition(double x, double y);
     void ToggleEditMode();
+    void ToggleTweenMode();
     void ToggleOnionSkin();
     void MarkNextPoint();
     void AddNewComponent();

@@ -10,7 +10,7 @@ Display::Display()
 : application_name_("example")
 {
     window_ = 0;
-    SetScreenSize(500, 500);
+    SetScreenSize(1280, 1280);
     SetFullscreen(false);
     SetBlending(true);
     SetSmoothing(true);

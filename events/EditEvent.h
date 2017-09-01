@@ -12,6 +12,7 @@ public:
         ADD_COMPONENT,
         ADD_FRAME,
         TOGGLE_ONION_SKIN,
+        TOGGLE_TWEENING,
         DELETE_COMPONENT,
         DELETE_FRAME
     };

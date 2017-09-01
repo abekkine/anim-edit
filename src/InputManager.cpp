@@ -123,6 +123,8 @@ void InputManager::ProcessKeys(int key)
             DeleteActiveFrame(); break;
         case GLFW_KEY_F:
             AddNewFrame(); break;
+        case GLFW_KEY_T:
+            ToggleTweenMode(); break;
         case GLFW_KEY_O:
             ToggleOnionSkin(); break;
         case GLFW_KEY_RIGHT:
@@ -202,6 +204,11 @@ void InputManager::AddNewComponent() {
 
 void InputManager::AddNewFrame() {
     EditEvent* event = new EditEvent(EditEvent::ADD_FRAME);
+    EVENTS.Publish("edit", event);
+}
+
+void InputManager::ToggleTweenMode() {
+    EditEvent* event = new EditEvent(EditEvent::TOGGLE_TWEENING);
     EVENTS.Publish("edit", event);
 }
 

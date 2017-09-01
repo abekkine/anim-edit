@@ -76,6 +76,12 @@ void AnimComponent::Render() {
     RenderPoints();
 }
 
+void AnimComponent::RenderInBetween(double ratio, std::shared_ptr<AnimComponent> ptrComp) {
+
+    (void)ratio;
+    (void)ptrComp;
+}
+
 void AnimComponent::RenderLines() {
 
     glColor4fv(color_);

@@ -29,6 +29,7 @@ private:
     void RenderTest();
     void RenderScene();
     void ToggleEditMode();
+    void ToggleTweenMode();
     void ToggleOnionSkin();
     void TogglePlayback();
     void AddComponent();
@@ -57,6 +58,9 @@ private:
     int id_counter_;
     unsigned int active_frame_;
     EditType edit_mode_;
+    double tween_step_;
+    double tween_count_;
+    uint8_t tween_mode_;
     uint8_t playback_mode_;
     uint8_t onion_skin_mode_;
     unsigned int max_onion_frames_;

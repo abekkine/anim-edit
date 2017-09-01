@@ -25,6 +25,9 @@ AnimationManager::AnimationManager()
     edit_mode_ = NONE;
     playback_mode_ = 0;
     onion_skin_mode_ = 0;
+    tween_mode_ = 0;
+    tween_step_ = 0.1;
+    tween_count_ = 1e7;
     max_onion_frames_ = 3;
     world_x_ = 0.0;
     world_y_ = 0.0;
@@ -85,28 +88,64 @@ void AnimationManager::RenderScene() {
     if (playback_mode_) {
 
         if (frameTimer_.GetElapsed() > 0.04) {
-            if (active_frame_ == frames_.size()) {
-                SetActiveFrame(0);
+
+            if (tween_mode_) {
+                tween_count_ += tween_step_;
+            } else {
+                tween_count_ = 1e7;
             }
-            else {
-                SetActiveFrame(active_frame_ + 1);
+
+            if (tween_count_ < 1.0) {
+
+                // Render with tweening.
+                unsigned int nextFrame = active_frame_+1;
+                if (nextFrame > frames_.size()) nextFrame = 0;
+                {
+                    std::lock_guard<std::mutex> lock(component_mutex_);
+                    for (unsigned int i=0; i<frames_[active_frame_].size(); i++) {
+                        auto nextFrameComponent = frames_[nextFrame][i];
+                        frames_[active_frame_][i]->RenderInBetween(tween_count_, nextFrameComponent);
+                    }
+                }
+
+            } else {
+
+                if (active_frame_ == frames_.size()) {
+                    SetActiveFrame(0);
+                }
+                else {
+                    SetActiveFrame(active_frame_ + 1);
+                }
+
+                // Render components only (no onion skin).
+                {
+                    std::lock_guard<std::mutex> lock(component_mutex_);
+                    for (auto component : frames_[active_frame_]) {
+                        component->Render();
+                    }
+                }
+
+                tween_count_ = 0.0;
             }
+
             frameTimer_.Reset();
         }
     }
+    else {
 
-    {
-        std::lock_guard<std::mutex> lock(component_mutex_);
-        for (auto component : frames_[active_frame_]) {
-            component->Render();
+        {
+            std::lock_guard<std::mutex> lock(component_mutex_);
+            for (auto component : frames_[active_frame_]) {
+                component->Render();
+            }
         }
-    }
 
-    if (onion_skin_mode_) {
-        int alpha_len = alpha_frames_.size();
-        for (int i=0; i<alpha_len; i++) {
-            for (auto component : frames_[alpha_frames_[i]]) {
-                component->RenderAlpha(i, alpha_len);
+        if (onion_skin_mode_) {
+            int alpha_len = alpha_frames_.size();
+            for (int i=0; i<alpha_len; i++) {
+                for (auto component : frames_[alpha_frames_[i]]) {
+                    component->RenderAlpha(i, alpha_len);
+                }
             }
         }
     }
@@ -188,6 +227,9 @@ void AnimationManager::editEventHandler(EventInterface* event) {
                 break;
             case EditEvent::ADD_FRAME:
                 AddFrame();
+                break;
+            case EditEvent::TOGGLE_TWEENING:
+                ToggleTweenMode();
                 break;
             case EditEvent::TOGGLE_ONION_SKIN:
                 ToggleOnionSkin();
@@ -318,7 +360,7 @@ void AnimationManager::AddComponent() {
 
     for (unsigned int i=0; i<frames_.size(); i++) {
         auto c = std::make_shared<AnimComponent>(id_counter_);
-        c->SetColor(0.8, 0.8, 0.8);
+        c->SetColor(1.0, 1.0, 1.0);
         c->SetP0(world_x_, world_y_);
         c->SetP1(world_x_+10.0, world_y_);
 
@@ -390,7 +432,7 @@ void AnimationManager::AddFrame() {
     // Copy components in active frame into new frame.
     for (auto c : frames_[active_frame_]) {
         auto newc = std::make_shared<AnimComponent>(c->id_);
-        newc->SetColor(0.8, 0.8, 0.8);
+        newc->SetColor(1.0, 1.0, 1.0);
         newc->SetP0(c->p0_->x_, c->p0_->y_);
         newc->SetP1(c->p1_->x_, c->p1_->y_);
         clist.push_back(newc);
@@ -398,6 +440,17 @@ void AnimationManager::AddFrame() {
 
     // Add new frame after active frame,
     frames_.insert(frames_.begin() + active_frame_, clist);
+}
+
+void AnimationManager::ToggleTweenMode() {
+
+    tween_mode_ ^= 1;
+
+    if (tween_mode_) {
+        std::cout << "Tween Mode : ON" << std::endl;
+    } else {
+        std::cout << "Tween Mode : OFF" << std::endl;
+    }
 }
 
 void AnimationManager::ToggleOnionSkin() {
@@ -472,7 +525,7 @@ void AnimationManager::LoadAnimation() {
     DeleteAll();
 
     json j_;
-    try {;
+    try {
         std::fstream loadFile("save.json", std::fstream::in);
         loadFile >> j_;
         loadFile.close();
@@ -490,7 +543,7 @@ void AnimationManager::LoadAnimation() {
                 int c_id = std::stoi(j.key());
                 json c_json = j.value();
                 auto c = std::make_shared<AnimComponent>(c_id);
-                c->SetColor(0.8, 0.8, 0.8);
+                c->SetColor(1.0, 1.0, 1.0);
                 c->SetP0(c_json["p0"]["x"], c_json["p0"]["y"]);
                 c->SetP1(c_json["p1"]["x"], c_json["p1"]["y"]);
 

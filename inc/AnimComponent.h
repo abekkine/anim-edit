@@ -22,6 +22,7 @@ public:
     void RenderLines();
     void RenderPoints();
     void Render();
+    void RenderInBetween(double ratio, std::shared_ptr<AnimComponent> ptrComp);
     void RenderAlpha(int alpha_index, int a_size);
     std::vector<std::shared_ptr<Point>> PointsInVicinity(double x, double y, double vicinity);
     json& DumpJSON();
